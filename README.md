@@ -177,12 +177,18 @@ Schema::create('products', function (Blueprint $table) {
 
 ## Comparison with Alternatives
 
-| Solution | Storage | App Values | Precision | Package |
-|----------|---------|------------|-----------|---------|
-| **Lara100** | DECIMAL | Integer | ✅ Perfect | Lightweight |
-| [moneyphp/money](https://github.com/moneyphp/money) | INTEGER | Object | ✅ Perfect | Full-featured, heavier |
-| [brick/money](https://github.com/brick/money) | INTEGER | Object | ✅ Perfect | Full-featured, heavier |
-| Native DECIMAL | DECIMAL | Float | ⚠️ Issues | None needed |
+| Solution | DB Column Type | PHP Value Type | Precision | Package Size |
+|----------|----------------|----------------|-----------|--------------|
+| **Lara100** | `DECIMAL(10,2)` | `int` (1999) | ✅ Perfect | Lightweight cast |
+| [moneyphp/money](https://github.com/moneyphp/money) | `INTEGER` | `Money` object | ✅ Perfect | Full-featured library |
+| [brick/money](https://github.com/brick/money) | `INTEGER` | `Money` object | ✅ Perfect | Full-featured library |
+| Native DECIMAL | `DECIMAL(10,2)` | `float` (19.99) | ⚠️ Precision issues | No package needed |
+
+**Key Differences:**
+
+- **Lara100**: Cast that keeps decimals in DB (human-readable), but works with integers in PHP (precision-safe)
+- **Money libraries**: Store integers in DB (requires migration), work with objects in PHP (more features)
+- **Native DECIMAL**: No cast, works with floats (prone to precision errors)
 
 **Choose Lara100 when:**
 - ✅ You want a simple, Laravel-native solution
