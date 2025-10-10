@@ -117,6 +117,14 @@ $product->price = 19.99;
 $product->save();  // Stores 1999 in DB
 ```
 
+### Rounding Behavior
+
+The cast uses **PHP's default rounding mode (Round Half Up)**:
+- `0.555` → `0.56` (rounds up when exactly halfway)
+- `0.554` → `0.55`
+
+This is the standard rounding mode used in Spain, the EU, and most countries. For specialized rounding modes (e.g., Banker's Rounding for accounting), see the [roadmap for v1.1.0](#future-enhancements).
+
 ## Examples
 
 ### Working with Monetary Values
@@ -242,6 +250,30 @@ Run Laravel Pint code formatter:
 ```bash
 composer format
 ```
+
+## Future Enhancements
+
+We're considering the following improvements for future versions:
+
+### v1.1.0 (Planned)
+
+- **Configurable Rounding Modes**: Support for different rounding strategies
+  - `PHP_ROUND_HALF_UP` (current default - Spain/EU standard)
+  - `PHP_ROUND_HALF_EVEN` (Banker's Rounding for accounting)
+  - `PHP_ROUND_HALF_DOWN`, `PHP_ROUND_HALF_ODD`
+  
+- **Optional BCMath Support**: For arbitrary precision arithmetic with very large amounts
+
+- **Named Constructors**: Improved developer experience
+  ```php
+  'price' => Base100::default(),
+  'tax' => Base100::bankers(),
+  'balance' => Base100::withBcmath(),
+  ```
+
+See [IMPROVEMENTS.md](.github/IMPROVEMENTS.md) for detailed proposals and implementation examples.
+
+Feedback and contributions are welcome!
 
 ## Changelog
 
