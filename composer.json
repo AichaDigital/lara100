@@ -16,10 +16,8 @@
     "authors": [
         {
             "name": "Abdelkarim Mateos Sanchez",
-            "company": "AichaDigital SL",
-            "company_url": "https://aichadigital.com",
-            "country": "ES",
             "email": "abdelkarim.mateos@castris.com",
+            "homepage": "https://aichadigital.com",
             "role": "Developer"
         }
     ],
