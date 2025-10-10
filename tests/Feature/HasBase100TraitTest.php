@@ -8,105 +8,105 @@ describe('HasBase100 Trait', function () {
     it('applies base100 cast to specified attributes', function () {
         $model = new TestModelWithTrait;
 
-        $model->price = 1999;
-        $model->cost  = 1500;
-        $model->tax   = 250;
+        $model->price = 19.99;  // User sets decimal
+        $model->cost  = 15.00;
+        $model->tax   = 2.50;
         $model->save();
 
         $model->refresh();
 
-        expect($model->price)->toBe(1999)
-            ->and($model->cost)->toBe(1500)
-            ->and($model->tax)->toBe(250);
+        expect($model->price)->toBe(19.99)  // User gets decimal
+            ->and($model->cost)->toBe(15.00)
+            ->and($model->tax)->toBe(2.50);
     });
 
-    it('stores values correctly in database', function () {
+    it('stores values correctly in database as integers', function () {
         $model = new TestModelWithTrait;
 
-        $model->price = 5999;  // Should store as 59.99
-        $model->cost  = 3500;  // Should store as 35.00
-        $model->tax   = 1099;  // Should store as 10.99
+        $model->price = 59.99;  // User sets 59.99
+        $model->cost  = 35.00;  // User sets 35.00
+        $model->tax   = 10.99;  // User sets 10.99
         $model->save();
 
-        // Check raw database values
+        // Check raw database values (should be integers)
         $raw = TestModelWithTrait::query()
             ->selectRaw('price, cost, tax')
             ->find($model->id);
 
-        expect((float) $raw->getAttributes()['price'])->toBe(59.99)
-            ->and((float) $raw->getAttributes()['cost'])->toBe(35.00)
-            ->and((float) $raw->getAttributes()['tax'])->toBe(10.99);
+        expect((int) $raw->getAttributes()['price'])->toBe(5999)  // Stored as 5999 cents
+            ->and((int) $raw->getAttributes()['cost'])->toBe(3500)  // Stored as 3500 cents
+            ->and((int) $raw->getAttributes()['tax'])->toBe(1099);  // Stored as 1099 cents
     });
 
     it('retrieves values correctly from database', function () {
         $model = new TestModelWithTrait;
 
-        $model->price = 12345;
-        $model->cost  = 9999;
-        $model->tax   = 1850;
+        $model->price = 123.45;  // User sets decimals
+        $model->cost  = 99.99;
+        $model->tax   = 18.50;
         $model->save();
 
         $retrieved = TestModelWithTrait::find($model->id);
 
-        expect($retrieved->price)->toBe(12345)
-            ->and($retrieved->cost)->toBe(9999)
-            ->and($retrieved->tax)->toBe(1850);
+        expect($retrieved->price)->toBe(123.45)  // User gets decimals back
+            ->and($retrieved->cost)->toBe(99.99)
+            ->and($retrieved->tax)->toBe(18.50);
     });
 
     it('works with mass assignment', function () {
         $model = TestModelWithTrait::create([
-            'price' => 2999,
-            'cost'  => 1800,
-            'tax'   => 540,
+            'price' => 29.99,  // User provides decimals
+            'cost'  => 18.00,
+            'tax'   => 5.40,
         ]);
 
-        expect($model->price)->toBe(2999)
-            ->and($model->cost)->toBe(1800)
-            ->and($model->tax)->toBe(540);
+        expect($model->price)->toBe(29.99)  // User gets decimals
+            ->and($model->cost)->toBe(18.00)
+            ->and($model->tax)->toBe(5.40);
     });
 
     it('handles zero values with trait', function () {
         $model = new TestModelWithTrait;
 
-        $model->price = 0;
-        $model->cost  = 0;
-        $model->tax   = 0;
+        $model->price = 0.00;
+        $model->cost  = 0.00;
+        $model->tax   = 0.00;
         $model->save();
 
         $model->refresh();
 
-        expect($model->price)->toBe(0)
-            ->and($model->cost)->toBe(0)
-            ->and($model->tax)->toBe(0);
+        expect($model->price)->toBe(0.00)
+            ->and($model->cost)->toBe(0.00)
+            ->and($model->tax)->toBe(0.00);
     });
 
     it('handles updates correctly', function () {
         $model = TestModelWithTrait::create([
-            'price' => 1000,
-            'cost'  => 500,
-            'tax'   => 100,
+            'price' => 10.00,
+            'cost'  => 5.00,
+            'tax'   => 1.00,
         ]);
 
         $model->update([
-            'price' => 2000,
-            'cost'  => 1000,
-            'tax'   => 200,
+            'price' => 20.00,
+            'cost'  => 10.00,
+            'tax'   => 2.00,
         ]);
 
-        expect($model->fresh()->price)->toBe(2000)
-            ->and($model->fresh()->cost)->toBe(1000)
-            ->and($model->fresh()->tax)->toBe(200);
+        expect($model->fresh()->price)->toBe(20.00)
+            ->and($model->fresh()->cost)->toBe(10.00)
+            ->and($model->fresh()->tax)->toBe(2.00);
     });
 
     it('can perform arithmetic operations on cast values', function () {
         $model = TestModelWithTrait::create([
-            'price' => 1000,  // 10.00
-            'cost'  => 600,   // 6.00
-            'tax'   => 150,   // 1.50
+            'price' => 10.00,  // $10.00
+            'cost'  => 6.00,   // $6.00
+            'tax'   => 1.50,   // $1.50
         ]);
 
         $total = $model->price + $model->cost + $model->tax;
 
-        expect($total)->toBe(1750); // 17.50 in base-100
+        expect($total)->toBe(17.50);  // $17.50 (works perfectly with floats now!)
     });
 });
