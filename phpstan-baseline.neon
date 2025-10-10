@@ -1,0 +1,8 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Trait AichaDigital\\Lara100\\Concerns\\HasBase100 is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Concerns/HasBase100.php
+

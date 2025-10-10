@@ -1,0 +1,83 @@
+{
+    "name": "aichadigital/lara100",
+    "description": "Laravel cast for handling decimal values as base-100 integers (cents/centesimals)",
+    "keywords": [
+        "AichaDigital",
+        "laravel",
+        "lara100",
+        "cast",
+        "decimal",
+        "base100",
+        "monetary",
+        "precision"
+    ],
+    "homepage": "https://github.com/aichadigital/lara100",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abdelkarim Mateos Sanchez",
+            "company": "AichaDigital SL",
+            "company_url": "https://aichadigital.com",
+            "country": "ES",
+            "email": "abdelkarim.mateos@castris.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3|^8.4",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.25",
+        "nunomaduro/collision": "^8.8",
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AichaDigital\\Lara100\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AichaDigital\\Lara100\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/pint",
+        "test": "vendor/bin/pest",
+        "test-parallel": "vendor/bin/pest --parallel",
+        "test-profile": "vendor/bin/pest --profile",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G",
+        "phpstan-baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=1G"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AichaDigital\\Lara100\\Lara100ServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
+
