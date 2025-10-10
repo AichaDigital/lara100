@@ -38,10 +38,37 @@ You can install the package via Composer:
 composer require aichadigital/lara100
 ```
 
+### Configuration (Optional)
+
+You can optionally publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag="lara100-config"
+```
+
+This will create a `config/lara100.php` file where you can configure:
+- **Rounding mode** (default: `PHP_ROUND_HALF_UP`)
+- **BCMath usage** (default: `false`)
+
+Alternatively, you can set these via environment variables in your `.env`:
+
+```env
+# Rounding mode (default: 2 = PHP_ROUND_HALF_UP)
+# 1 = PHP_ROUND_HALF_UP (standard for Spain/EU)
+# 2 = PHP_ROUND_HALF_DOWN
+# 3 = PHP_ROUND_HALF_EVEN (Banker's rounding for accounting)
+# 4 = PHP_ROUND_HALF_ODD
+LARA100_ROUNDING_MODE=1
+
+# Enable BCMath for arbitrary precision (requires bcmath extension)
+LARA100_USE_BCMATH=false
+```
+
 ## Requirements
 
 - PHP 8.3 or 8.4
 - Laravel 11.x or 12.x
+- Optional: BCMath extension (for high-precision calculations)
 
 ## Usage
 
@@ -119,11 +146,59 @@ $product->save();  // Stores 1999 in DB
 
 ### Rounding Behavior
 
-The cast uses **PHP's default rounding mode (Round Half Up)**:
+By default, the cast uses **Round Half Up (PHP_ROUND_HALF_UP)**:
 - `0.555` → `0.56` (rounds up when exactly halfway)
 - `0.554` → `0.55`
 
-This is the standard rounding mode used in Spain, the EU, and most countries. For specialized rounding modes (e.g., Banker's Rounding for accounting), see the [roadmap for v1.1.0](#future-enhancements).
+This is the standard rounding mode used in Spain, the EU, and most countries.
+
+#### Configuring Rounding Mode
+
+You can configure the rounding mode globally via config or per-attribute:
+
+**Global configuration** (affects all casts):
+```env
+# In .env
+LARA100_ROUNDING_MODE=1  # PHP_ROUND_HALF_UP (default)
+```
+
+**Per-attribute override** (in your model):
+```php
+use AichaDigital\Lara100\Casts\Base100;
+
+protected function casts(): array
+{
+    return [
+        'price' => Base100::class,                      // Uses config default
+        'tax' => new Base100(PHP_ROUND_HALF_EVEN),      // Banker's rounding
+        'discount' => new Base100(PHP_ROUND_HALF_DOWN), // Always round down
+    ];
+}
+```
+
+#### Available Rounding Modes
+
+| Mode | Constant | Behavior | Use Case |
+|------|----------|----------|----------|
+| **Half Up** | `PHP_ROUND_HALF_UP` (1) | 0.555→0.56, 0.545→0.55 | Spain/EU standard |
+| **Half Even** | `PHP_ROUND_HALF_EVEN` (3) | 0.555→0.56, 0.545→0.54 | Accounting (Banker's) |
+| **Half Down** | `PHP_ROUND_HALF_DOWN` (2) | 0.555→0.55, 0.545→0.54 | Conservative rounding |
+| **Half Odd** | `PHP_ROUND_HALF_ODD` (4) | 0.555→0.55, 0.545→0.55 | Specialized cases |
+
+#### BCMath Support
+
+For maximum precision with very large amounts, enable BCMath:
+
+```env
+LARA100_USE_BCMATH=true
+```
+
+Or per-attribute:
+```php
+'balance' => new Base100(useBcmath: true),
+```
+
+**Note:** Requires the `bcmath` PHP extension to be installed.
 
 ## Examples
 
@@ -250,30 +325,6 @@ Run Laravel Pint code formatter:
 ```bash
 composer format
 ```
-
-## Future Enhancements
-
-We're considering the following improvements for future versions:
-
-### v1.1.0 (Planned)
-
-- **Configurable Rounding Modes**: Support for different rounding strategies
-  - `PHP_ROUND_HALF_UP` (current default - Spain/EU standard)
-  - `PHP_ROUND_HALF_EVEN` (Banker's Rounding for accounting)
-  - `PHP_ROUND_HALF_DOWN`, `PHP_ROUND_HALF_ODD`
-  
-- **Optional BCMath Support**: For arbitrary precision arithmetic with very large amounts
-
-- **Named Constructors**: Improved developer experience
-  ```php
-  'price' => Base100::default(),
-  'tax' => Base100::bankers(),
-  'balance' => Base100::withBcmath(),
-  ```
-
-See [IMPROVEMENTS.md](.github/IMPROVEMENTS.md) for detailed proposals and implementation examples.
-
-Feedback and contributions are welcome!
 
 ## Changelog
 

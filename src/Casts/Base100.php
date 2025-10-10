@@ -20,6 +20,27 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Base100 implements CastsAttributes
 {
+    /** @var 1|2|3|4 */
+    protected int $roundingMode;
+
+    protected bool $useBcmath;
+
+    /**
+     * @param  1|2|3|4|null  $roundingMode
+     */
+    public function __construct(?int $roundingMode = null, ?bool $useBcmath = null)
+    {
+        /** @var 1|2|3|4 $mode */
+        $mode               = $roundingMode ?? (int) config('lara100.rounding_mode', PHP_ROUND_HALF_UP);
+        $this->roundingMode = $mode;
+        $this->useBcmath    = $useBcmath    ?? (bool) config('lara100.use_bcmath', false);
+
+        // Disable BCMath if extension not loaded
+        if ($this->useBcmath && ! extension_loaded('bcmath')) {
+            $this->useBcmath = false;
+        }
+    }
+
     /**
      * Cast the given value from storage (DB → Model).
      *
@@ -34,7 +55,11 @@ class Base100 implements CastsAttributes
             return 0.0;
         }
 
-        return round((float) $value / 100, 2);
+        if ($this->useBcmath) {
+            return (float) bcdiv((string) $value, '100', 2);
+        }
+
+        return round((float) $value / 100, 2, $this->roundingMode);
     }
 
     /**
@@ -51,6 +76,14 @@ class Base100 implements CastsAttributes
             return 0;
         }
 
-        return (int) round((float) $value * 100);
+        if ($this->useBcmath) {
+            // BCMath: multiply by 100, then round to integer
+            $multiplied = bcmul((string) $value, '100', 2);
+
+            return (int) round((float) $multiplied, 0, $this->roundingMode);
+        }
+
+        // Standard: multiply by 100, then round to integer
+        return (int) round((float) $value * 100, 0, $this->roundingMode);
     }
 }
