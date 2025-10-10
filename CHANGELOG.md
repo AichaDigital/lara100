@@ -2,7 +2,7 @@
 
 All notable changes to `lara100` will be documented in this file.
 
-## 1.0.0 - TBD
+## 1.0.0 - 2025-10-10
 
 - Initial release
 - Base100 cast for handling decimal values as base-100 integers
