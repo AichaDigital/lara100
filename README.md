@@ -7,7 +7,7 @@
 
 > **Note:** Package will be published to Packagist soon. Once published, additional badges for Packagist version and downloads will be added.
 
-A Laravel package that provides a custom Eloquent cast for handling decimal values as base-100 integers (cents/centesimals), eliminating floating-point precision errors in your applications.
+A Laravel package that provides a custom Eloquent cast for handling monetary/decimal values by storing them as integers (cents) in the database while working with decimals in your PHP code, eliminating floating-point precision errors.
 
 ## Why Lara100?
 
@@ -23,11 +23,11 @@ This is particularly problematic when dealing with:
 - 📊 **Percentages** (tax rates, discounts)
 - 📏 **Any centesimal measurements**
 
-**Lara100** solves this by storing decimals as integers multiplied by 100 in your application, while keeping them as decimals in the database.
+**Lara100** solves this by storing values as integers (cents) in the database, while letting you work with familiar decimal values in your code.
 
 ```php
-// In your database: 19.99 (decimal)
-// In your application: 1999 (integer)
+// In your database: 1999 (integer - cents)
+// In your application: 19.99 (decimal - dollars/euros)
 ```
 
 ## Installation
@@ -66,17 +66,17 @@ class Product extends Model
 }
 ```
 
-Now you can work with integers in your application:
+Now you can work with decimals in your application while storing integers in the database:
 
 ```php
 $product = new Product;
-$product->price = 1999;  // Stores 19.99 in database
-$product->save();
+$product->price = 19.99;  // You set: 19.99 (decimal)
+$product->save();         // DB stores: 1999 (integer cents)
 
-echo $product->price;  // Returns 1999 (integer)
+echo $product->price;     // You get: 19.99 (decimal)
 
-// Arithmetic operations work perfectly
-$total = $product->price + $product->tax;  // Integer addition, no precision errors!
+// Arithmetic operations work perfectly with decimals
+$total = $product->price + $product->tax;  // 19.99 + 2.50 = 22.49 ✅
 ```
 
 ### Advanced Usage (Trait)
@@ -104,17 +104,17 @@ The trait automatically applies the `Base100` cast to all specified attributes.
 
 ### Database → Application (GET)
 ```php
-// Database stores: 19.99 (DECIMAL)
-// Cast converts to: 1999 (INTEGER)
-$product->price;  // 1999
+// Database stores: 1999 (INTEGER cents)
+// Cast converts to: 19.99 (DECIMAL)
+$product->price;  // 19.99
 ```
 
 ### Application → Database (SET)
 ```php
-// Application sends: 1999 (INTEGER)
-// Cast converts to: 19.99 (DECIMAL)
-$product->price = 1999;
-$product->save();  // Stores 19.99 in DB
+// Application receives: 19.99 (DECIMAL)
+// Cast converts to: 1999 (INTEGER cents)
+$product->price = 19.99;
+$product->save();  // Stores 1999 in DB
 ```
 
 ## Examples
@@ -123,83 +123,91 @@ $product->save();  // Stores 19.99 in DB
 
 ```php
 $invoice = new Invoice;
-$invoice->subtotal = 10000;  // $100.00
-$invoice->tax = 1300;        // $13.00
-$invoice->total = 11300;     // $113.00
-$invoice->save();
+$invoice->subtotal = 100.00;  // You set: $100.00 (decimal)
+$invoice->tax = 13.00;        // You set: $13.00 (decimal)
+$invoice->total = 113.00;     // You set: $113.00 (decimal)
+$invoice->save();             // DB stores: 10000, 1300, 11300 (integers)
 
-// Calculate percentage
+// Calculate percentage (works naturally with decimals)
 $taxRate = ($invoice->tax / $invoice->subtotal) * 100;  // 13%
 
-// Display to user (format as needed)
-$formatted = '$' . number_format($invoice->total / 100, 2);  // "$113.00"
+// Display to user (already a decimal!)
+$formatted = '$' . number_format($invoice->total, 2);  // "$113.00"
 ```
 
 ### Performing Calculations
 
 ```php
-$product = Product::find(1);  // price = 1999 (19.99)
+$product = Product::find(1);  // price = 19.99 (DB has 1999)
 $quantity = 3;
 
-$lineTotal = $product->price * $quantity;  // 5997
-$discount = 500;  // $5.00 discount
-$finalTotal = $lineTotal - $discount;  // 5497 ($54.97)
+$lineTotal = $product->price * $quantity;  // 59.97 (19.99 × 3)
+$discount = 5.00;                          // $5.00 discount
+$finalTotal = $lineTotal - $discount;      // 54.97 ✅
 
-// No floating-point errors! ✨
+// Works naturally with decimal arithmetic!
 ```
 
 ### Handling Edge Cases
 
 ```php
 // Zero values
-$product->price = 0;  // Stores 0.00 in DB
+$product->price = 0.00;  // Stores 0 in DB
 
 // Negative values (refunds, discounts)
-$refund->amount = -2500;  // Stores -25.00 in DB
+$refund->amount = -25.00;  // Stores -2500 in DB (negative cents)
 
 // Large numbers
-$property->price = 50000000;  // Stores 500000.00 in DB ($500,000.00)
+$property->price = 500000.00;  // Stores 50000000 in DB ($500,000.00)
 ```
 
 ## Database Schema
 
-Your database columns should be defined as `DECIMAL`:
+Your database columns should be defined as `INTEGER` (to store cents):
 
 ```php
 Schema::create('products', function (Blueprint $table) {
     $table->id();
-    $table->decimal('price', 10, 2);  // 10 digits, 2 decimals
-    $table->decimal('cost', 10, 2);
-    $table->decimal('tax', 10, 2);
+    $table->integer('price')->default(0);  // Stores cents: 1999 = $19.99
+    $table->integer('cost')->default(0);   // Stores cents: 1500 = $15.00
+    $table->integer('tax')->default(0);    // Stores cents: 250 = $2.50
     $table->timestamps();
 });
 ```
+
+**Why INTEGER instead of DECIMAL?**
+- ✅ Better performance (integer operations are faster)
+- ✅ Less storage space
+- ✅ No floating-point precision issues at database level
+- ✅ Compatible with all database engines
 
 ## Comparison with Alternatives
 
 | Solution | DB Column Type | PHP Value Type | Precision | Package Size |
 |----------|----------------|----------------|-----------|--------------|
-| **Lara100** | `DECIMAL(10,2)` | `int` (1999) | ✅ Perfect | Lightweight cast |
-| [moneyphp/money](https://github.com/moneyphp/money) | `INTEGER` | `Money` object | ✅ Perfect | Full-featured library |
-| [brick/money](https://github.com/brick/money) | `INTEGER` | `Money` object | ✅ Perfect | Full-featured library |
+| **Lara100** | `INTEGER` (cents) | `float` (19.99) | ✅ Perfect | Lightweight cast |
+| [moneyphp/money](https://github.com/moneyphp/money) | `INTEGER` (cents) | `Money` object | ✅ Perfect | Full-featured library |
+| [brick/money](https://github.com/brick/money) | `INTEGER` (cents) | `Money` object | ✅ Perfect | Full-featured library |
 | Native DECIMAL | `DECIMAL(10,2)` | `float` (19.99) | ⚠️ Precision issues | No package needed |
 
 **Key Differences:**
 
-- **Lara100**: Cast that keeps decimals in DB (human-readable), but works with integers in PHP (precision-safe)
-- **Money libraries**: Store integers in DB (requires migration), work with objects in PHP (more features)
-- **Native DECIMAL**: No cast, works with floats (prone to precision errors)
+- **Lara100**: Lightweight cast that stores integers in DB (efficient), but lets you work with decimals in PHP (natural)
+- **Money libraries**: Full-featured libraries with objects, currency conversion, formatting, etc.
+- **Native DECIMAL**: Traditional approach, works with floats in PHP (precision issues)
 
 **Choose Lara100 when:**
 - ✅ You want a simple, Laravel-native solution
-- ✅ You prefer working with integers
-- ✅ You want to keep decimals in your database
+- ✅ You prefer working with familiar decimal values (19.99)
+- ✅ You want efficient integer storage in the database
 - ✅ You don't need currency conversions or complex money operations
+- ✅ You want to avoid float precision errors without heavy dependencies
 
 **Consider alternatives when:**
 - ❌ You need multi-currency support
-- ❌ You need complex monetary operations (allocation, distribution)
-- ❌ You prefer working with money objects instead of integers
+- ❌ You need complex monetary operations (allocation, distribution, rounding strategies)
+- ❌ You prefer working with Money objects instead of scalar decimals
+- ❌ You need advanced formatting and localization features
 
 ## Testing
 

@@ -12,9 +12,9 @@ return new class extends Migration
     {
         Schema::create('test_models', function (Blueprint $table) {
             $table->id();
-            $table->decimal('price', 10, 2)->default(0);
-            $table->decimal('cost', 10, 2)->default(0);
-            $table->decimal('tax', 10, 2)->default(0);
+            $table->integer('price')->default(0);  // Stores cents: 1999 = $19.99
+            $table->integer('cost')->default(0);   // Stores cents: 1500 = $15.00
+            $table->integer('tax')->default(0);    // Stores cents: 250 = $2.50
             $table->timestamps();
         });
     }
