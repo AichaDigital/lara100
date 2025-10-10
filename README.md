@@ -1,9 +1,11 @@
 # Lara100 - Base-100 Cast for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/aichadigital/lara100.svg?style=flat-square)](https://packagist.org/packages/aichadigital/lara100)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Atests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/pint.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Apint+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/aichadigital/lara100.svg?style=flat-square)](https://packagist.org/packages/aichadigital/lara100)
+[![Tests](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Atests+branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/pint.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Apint+branch%3Amain)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Aphpstan+branch%3Amain)
+[![Latest Version](https://img.shields.io/github/v/release/aichadigital/lara100?style=flat-square)](https://github.com/aichadigital/lara100/releases)
+
+> **Note:** Package will be published to Packagist soon. Once published, additional badges for Packagist version and downloads will be added.
 
 A Laravel package that provides a custom Eloquent cast for handling decimal values as base-100 integers (cents/centesimals), eliminating floating-point precision errors in your applications.
 
