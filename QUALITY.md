@@ -17,9 +17,9 @@ Este proyecto sigue los **6 principios de Good Code** del starter kit de Nuno Ma
 
 ```bash
 ✅ PHPStan:         Nivel MAX + Bleeding Edge - 0 errores
-✅ Tests:           52/52 pasando (100% cobertura)
+✅ Tests:           85/85 pasando (100% cobertura, 276 assertions)
 ✅ Pint:            Código formateado correctamente
-✅ Mutation Score:  65.52% (objetivo: 70%+)
+✅ Mutation Score:  72.41% (objetivo 70% SUPERADO! 🎉)
 ✅ SOLID:           Principios aplicados correctamente
 ```
 
@@ -62,7 +62,7 @@ composer phpstan-baseline
 
 #### Mutation Testing
 ```bash
-# Ejecutar mutation testing (min 65%)
+# Ejecutar mutation testing (min 72%)
 composer test-mutate
 ```
 
@@ -175,39 +175,47 @@ parameters:
 
 ## 🧪 Mutation Testing
 
-### Score Actual: 65.52%
+### Score Actual: 72.41% 🎉
 
 El mutation testing verifica que tus tests realmente validan el comportamiento del código.
 
 **Mutaciones detectadas:**
-- 38 mutaciones probadas ✅
-- 20 mutaciones no probadas ❌
+- 39 mutaciones probadas ✅
+- 16 mutaciones no probadas ❌
+- 3 mutaciones timeout ⏱️
 
-**Progreso:**
+**Progreso histórico:**
 - Inicial: 58.62% (34 tested, 24 untested)
-- Después de agregar tests BCMath y edge cases: 65.52% (+7%)
+- Fase 1 - BCMath & edge cases: 65.52% (+7%)
+- Fase 2 - Mutation killers: 68.97% (+3.45%)
+- **Fase 3 - Final push: 72.41% (+3.44%)** 🎯
 
 ### Objetivo Progresivo
 
 ```bash
 ✅ Sprint 1-2:  65% (LOGRADO)
-⏳ Sprint 3-4:  70%
+✅ Sprint 3-4:  72% (SUPERADO! 🎉)
 ⏳ Sprint 5-6:  80%
 ⏳ Sprint 7+:   85%+
 ```
 
 ### Cómo Mejorar el Score
 
-✅ **Completado:**
+✅ **Completado (72.41%):**
 1. ✅ Tests para edge cases (valores no numéricos, null, extremos)
 2. ✅ Tests con BCMath activado/desactivado
 3. ✅ Tests para diferentes modos de redondeo
 4. ✅ Tests para valores extremos y precisión
+5. ✅ Tests específicos para RemoveDoubleCast mutations
+6. ✅ Tests específicos para CoalesceRemoveLeft mutations
+7. ✅ Tests específicos para TernaryNegated mutations
+8. ✅ Tests de validación de config con tipos incorrectos
+9. ✅ Tests de precisión exacta en BCMath
 
-**Próximos pasos para 70%+:**
-1. Tests adicionales para mutaciones específicas de coalesce
-2. Tests que verifiquen el comportamiento de casts específicos
-3. Tests de integración más complejos
+**Próximos pasos para 80%+:**
+1. Tests para mutaciones BooleanAndToBooleanOr restantes
+2. Tests que verifiquen comportamiento con extensión BCMath no disponible
+3. Optimización de tests que causan timeout
 
 ## 🎓 Principios SOLID Aplicados
 
