@@ -7,7 +7,7 @@ use AichaDigital\Lara100\Tests\Models\TestModel;
 
 describe('Base100 Cast', function () {
     it('converts integer cents to decimal on get (DB → App)', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->get($model, 'price', 12345, []))->toBe(123.45)
@@ -17,7 +17,7 @@ describe('Base100 Cast', function () {
     });
 
     it('converts decimal to integer cents on set (App → DB)', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->set($model, 'price', 123.45, []))->toBe(12345)
@@ -27,7 +27,7 @@ describe('Base100 Cast', function () {
     });
 
     it('handles zero correctly', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->get($model, 'price', 0, []))->toBe(0.00)
@@ -35,7 +35,7 @@ describe('Base100 Cast', function () {
     });
 
     it('handles null values', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->get($model, 'price', null, []))->toBe(0.00)
@@ -43,7 +43,7 @@ describe('Base100 Cast', function () {
     });
 
     it('handles negative values', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->get($model, 'price', -5025, []))->toBe(-50.25)
@@ -51,7 +51,7 @@ describe('Base100 Cast', function () {
     });
 
     it('rounds appropriately', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         // Testing rounding on get (DB → Model): 1056 cents / 100 = 10.56
@@ -64,7 +64,7 @@ describe('Base100 Cast', function () {
     });
 
     it('returns correct types', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         $getValue = $cast->get($model, 'price', 10000, []);  // 10000 cents → 100.00
@@ -75,7 +75,7 @@ describe('Base100 Cast', function () {
     });
 
     it('handles large numbers', function () {
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         expect($cast->get($model, 'price', 99999999, []))->toBe(999999.99)

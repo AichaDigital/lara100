@@ -9,7 +9,7 @@ describe('Base100 Cast - Rounding Modes', function () {
     it('uses config default rounding mode', function () {
         config(['lara100.rounding_mode' => PHP_ROUND_HALF_UP]);
 
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         // 0.555 con Half Up → 0.56
@@ -17,7 +17,7 @@ describe('Base100 Cast - Rounding Modes', function () {
     });
 
     it('supports PHP_ROUND_HALF_UP mode', function () {
-        $cast  = new Base100(PHP_ROUND_HALF_UP);
+        $cast = new Base100(PHP_ROUND_HALF_UP);
         $model = new TestModel;
 
         // Half up: cuando tiene decimales imprecisos, redondea hacia arriba
@@ -29,7 +29,7 @@ describe('Base100 Cast - Rounding Modes', function () {
     });
 
     it('supports PHP_ROUND_HALF_EVEN mode (Bankers Rounding)', function () {
-        $cast  = new Base100(PHP_ROUND_HALF_EVEN);
+        $cast = new Base100(PHP_ROUND_HALF_EVEN);
         $model = new TestModel;
 
         // Banker's rounding funciona correctamente
@@ -39,7 +39,7 @@ describe('Base100 Cast - Rounding Modes', function () {
     });
 
     it('supports PHP_ROUND_HALF_DOWN mode', function () {
-        $cast  = new Base100(PHP_ROUND_HALF_DOWN);
+        $cast = new Base100(PHP_ROUND_HALF_DOWN);
         $model = new TestModel;
 
         // Half down funciona correctamente
@@ -51,9 +51,9 @@ describe('Base100 Cast - Rounding Modes', function () {
     it('allows per-attribute override of rounding mode', function () {
         config(['lara100.rounding_mode' => PHP_ROUND_HALF_UP]);
 
-        $defaultCast  = new Base100;  // Usa config (Half Up)
-        $customCast   = new Base100(PHP_ROUND_HALF_EVEN);  // Override
-        $model        = new TestModel;
+        $defaultCast = new Base100;  // Usa config (Half Up)
+        $customCast = new Base100(PHP_ROUND_HALF_EVEN);  // Override
+        $model = new TestModel;
 
         // Ambos deben funcionar correctamente
         expect($defaultCast->set($model, 'price', 19.99, []))->toBe(1999)
@@ -67,7 +67,7 @@ describe('Base100 Cast - Rounding Modes', function () {
 
         config(['lara100.use_bcmath' => true]);
 
-        $cast  = new Base100;
+        $cast = new Base100;
         $model = new TestModel;
 
         // BCMath debe dar los mismos resultados
@@ -78,7 +78,7 @@ describe('Base100 Cast - Rounding Modes', function () {
     it('falls back gracefully when BCMath not available', function () {
         config(['lara100.use_bcmath' => true]);
 
-        $cast  = new Base100(useBcmath: false);  // Force disable BCMath
+        $cast = new Base100(useBcmath: false);  // Force disable BCMath
         $model = new TestModel;
 
         // Should still work with standard float

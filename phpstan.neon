@@ -1,12 +1,25 @@
 includes:
     - phpstan-baseline.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
 
 parameters:
-    level: 6
     paths:
         - src
+        - config
+        - tests
+
+    level: max
+
     tmpDir: build/phpstan
+
     checkOctaneCompatibility: true
     checkModelProperties: true
     treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        # Pest internal methods - these are intentional design decisions by Pest
+        - '#Call to method .+ of internal class Pest\\.*#'
+
+        # Allow env() in package config files (this is correct for Laravel packages)
+        - '#Called .env. outside of the config directory#'
 

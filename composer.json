@@ -35,6 +35,7 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-arch": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest-plugin-mutate": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0"
@@ -54,12 +55,30 @@
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "analyse": "vendor/bin/phpstan analyse",
         "format": "vendor/bin/pint",
+        "format-check": "vendor/bin/pint --test",
         "test": "vendor/bin/pest",
         "test-parallel": "vendor/bin/pest --parallel",
         "test-profile": "vendor/bin/pest --profile",
-        "test-coverage": "vendor/bin/pest --coverage",
+        "test-coverage": "vendor/bin/pest --coverage --min=100",
+        "test-mutate": "vendor/bin/pest --mutate --everything --covered-only --min=70",
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G",
-        "phpstan-baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=1G"
+        "phpstan-baseline": "vendor/bin/phpstan analyse --generate-baseline --memory-limit=1G",
+        "quality": [
+            "@format",
+            "@phpstan",
+            "@test-coverage"
+        ],
+        "quality-full": [
+            "@format",
+            "@phpstan",
+            "@test-coverage",
+            "@test-mutate"
+        ],
+        "precommit": [
+            "@format",
+            "@phpstan",
+            "@test-parallel"
+        ]
     },
     "config": {
         "sort-packages": true,
@@ -78,4 +97,3 @@
     "minimum-stability": "dev",
     "prefer-stable": true
 }
-

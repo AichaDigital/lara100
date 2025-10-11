@@ -7,7 +7,7 @@ namespace AichaDigital\Lara100\Tests\Models;
 use AichaDigital\Lara100\Casts\Base100;
 use Illuminate\Database\Eloquent\Model;
 
-class TestModel extends Model
+final class TestModel extends Model
 {
     protected $fillable = ['price', 'cost', 'tax'];
 
@@ -15,8 +15,8 @@ class TestModel extends Model
     {
         return [
             'price' => Base100::class,
-            'cost'  => Base100::class,
-            'tax'   => Base100::class,
+            'cost' => Base100::class,
+            'tax' => Base100::class,
         ];
     }
 }

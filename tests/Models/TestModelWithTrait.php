@@ -7,7 +7,12 @@ namespace AichaDigital\Lara100\Tests\Models;
 use AichaDigital\Lara100\Concerns\HasBase100;
 use Illuminate\Database\Eloquent\Model;
 
-class TestModelWithTrait extends Model
+/**
+ * @property float $price
+ * @property float $cost
+ * @property float $tax
+ */
+final class TestModelWithTrait extends Model
 {
     use HasBase100;
 

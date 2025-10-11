@@ -1,8 +1,44 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Trait AichaDigital\\Lara100\\Concerns\\HasBase100 is used zero times and is not analysed\.$#'
-			identifier: trait.unused
+			rawMessage: Cannot access property $cost on AichaDigital\Lara100\Tests\Models\TestModelWithTrait|null.
+			identifier: property.nonObject
 			count: 1
-			path: src/Concerns/HasBase100.php
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: Cannot access property $cost on object|null.
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: Cannot access property $price on AichaDigital\Lara100\Tests\Models\TestModelWithTrait|null.
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: Cannot access property $price on object|null.
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: Cannot access property $tax on AichaDigital\Lara100\Tests\Models\TestModelWithTrait|null.
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: Cannot access property $tax on object|null.
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/HasBase100TraitTest.php
+
+		-
+			rawMessage: 'Unable to resolve the template type TAndValue in call to method Pest\Expectation<mixed>::and()'
+			identifier: argument.templateType
+			count: 3
+			path: tests/Feature/HasBase100TraitTest.php
 
