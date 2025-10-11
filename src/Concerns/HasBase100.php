@@ -25,6 +25,13 @@ use AichaDigital\Lara100\Casts\Base100;
 trait HasBase100
 {
     /**
+     * Get the list of attributes that should use the Base100 cast.
+     *
+     * @return array<int, string>
+     */
+    abstract protected function base100Attributes(): array;
+
+    /**
      * Initialize the HasBase100 trait for an instance.
      *
      * This method is automatically called by Laravel when the model is instantiated.
@@ -36,11 +43,4 @@ trait HasBase100
             $this->casts[$attribute] = Base100::class;
         }
     }
-
-    /**
-     * Get the list of attributes that should use the Base100 cast.
-     *
-     * @return array<int, string>
-     */
-    abstract protected function base100Attributes(): array;
 }

@@ -21,6 +21,8 @@ abstract class TestCase extends Orchestra
         config()->set('database.default', 'testing');
 
         $migration = include __DIR__.'/database/migrations/create_test_models_table.php';
+
+        // @phpstan-ignore-next-line - Migration anonymous class from file
         $migration->up();
     }
 }
