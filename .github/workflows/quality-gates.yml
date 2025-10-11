@@ -1,0 +1,57 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  quality-validation:
+    name: Quality Validation (Format, PHPStan, Coverage, Mutation)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: bcmath, mbstring
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: 🎨 Check Code Format (Pint)
+        run: composer format-check
+
+      - name: 🔍 Static Analysis (PHPStan MAX)
+        run: composer phpstan
+
+      - name: 🧪 Run Tests
+        run: composer test
+
+      - name: 📊 Code Coverage (100%)
+        run: composer test-coverage
+
+      - name: 🧬 Mutation Testing (70%+)
+        run: composer test-mutate
+
+      - name: ✅ All Quality Gates Passed
+        if: success()
+        run: echo "✅ All quality gates passed! Ready to merge."
+
+      - name: ❌ Quality Gates Failed
+        if: failure()
+        run: |
+          echo "❌ Quality gates failed. Please fix before merging:"
+          echo "- Check code format with: composer format"
+          echo "- Check PHPStan errors with: composer phpstan"
+          echo "- Check failing tests with: composer test"
+          echo "- Check coverage with: composer test-coverage"
+          echo "- Check mutation score with: composer test-mutate"
+          exit 1
+
