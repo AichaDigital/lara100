@@ -17,9 +17,9 @@ Este proyecto sigue los **6 principios de Good Code** del starter kit de Nuno Ma
 
 ```bash
 ✅ PHPStan:         Nivel MAX + Bleeding Edge - 0 errores
-✅ Tests:           22/22 pasando (100% cobertura)
+✅ Tests:           52/52 pasando (100% cobertura)
 ✅ Pint:            Código formateado correctamente
-✅ Mutation Score:  58.62% (objetivo: 80%+)
+✅ Mutation Score:  65.52% (objetivo: 70%+)
 ✅ SOLID:           Principios aplicados correctamente
 ```
 
@@ -62,7 +62,7 @@ composer phpstan-baseline
 
 #### Mutation Testing
 ```bash
-# Ejecutar mutation testing (min 60%)
+# Ejecutar mutation testing (min 65%)
 composer test-mutate
 ```
 
@@ -175,29 +175,39 @@ parameters:
 
 ## 🧪 Mutation Testing
 
-### Score Actual: 58.62%
+### Score Actual: 65.52%
 
 El mutation testing verifica que tus tests realmente validan el comportamiento del código.
 
 **Mutaciones detectadas:**
-- 34 mutaciones probadas ✅
-- 24 mutaciones no probadas ❌
+- 38 mutaciones probadas ✅
+- 20 mutaciones no probadas ❌
+
+**Progreso:**
+- Inicial: 58.62% (34 tested, 24 untested)
+- Después de agregar tests BCMath y edge cases: 65.52% (+7%)
 
 ### Objetivo Progresivo
 
 ```bash
-Sprint 1-2:  60% (actual)
-Sprint 3-4:  70%
-Sprint 5-6:  80%
-Sprint 7+:   85%+
+✅ Sprint 1-2:  65% (LOGRADO)
+⏳ Sprint 3-4:  70%
+⏳ Sprint 5-6:  80%
+⏳ Sprint 7+:   85%+
 ```
 
 ### Cómo Mejorar el Score
 
-1. Agregar tests para edge cases
-2. Testear comportamiento con BCMath activado/desactivado
-3. Testear diferentes modos de redondeo
-4. Agregar tests para valores extremos
+✅ **Completado:**
+1. ✅ Tests para edge cases (valores no numéricos, null, extremos)
+2. ✅ Tests con BCMath activado/desactivado
+3. ✅ Tests para diferentes modos de redondeo
+4. ✅ Tests para valores extremos y precisión
+
+**Próximos pasos para 70%+:**
+1. Tests adicionales para mutaciones específicas de coalesce
+2. Tests que verifiquen el comportamiento de casts específicos
+3. Tests de integración más complejos
 
 ## 🎓 Principios SOLID Aplicados
 
