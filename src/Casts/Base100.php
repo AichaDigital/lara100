@@ -40,9 +40,11 @@ final class Base100 implements CastsAttributes
         $this->useBcmath = $useBcmath ?? (is_bool($configBcmath) ? $configBcmath : false);
 
         // Disable BCMath if extension not loaded
+        // @codeCoverageIgnoreStart
         if ($this->useBcmath && ! extension_loaded('bcmath')) {
             $this->useBcmath = false;
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
