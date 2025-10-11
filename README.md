@@ -5,8 +5,6 @@
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Aphpstan+branch%3Amain)
 [![Latest Version](https://img.shields.io/github/v/release/aichadigital/lara100?style=flat-square)](https://github.com/aichadigital/lara100/releases)
 
-> **Note:** Package will be published to Packagist soon. Once published, additional badges for Packagist version and downloads will be added.
-
 A Laravel package that provides a custom Eloquent cast for handling monetary/decimal values by storing them as integers (cents) in the database while working with decimals in your PHP code, eliminating floating-point precision errors.
 
 ## Why Lara100?

@@ -31,3 +31,9 @@ All notable changes to `lara100` will be documented in this file.
 - PHPStan level 6 compliant
 - Laravel Pint formatted
 
+## 1.0.1 - 2025-10-11
+
+### Modified
+- **README.md**: Remove the notice about Packagist
+
+
