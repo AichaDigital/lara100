@@ -92,8 +92,12 @@
             "providers": [
                 "AichaDigital\\Lara100\\Lara100ServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-main": "1.x-dev"
         }
     },
+    "non-feature-branches": ["main", "develop"],
     "minimum-stability": "dev",
     "prefer-stable": true
 }

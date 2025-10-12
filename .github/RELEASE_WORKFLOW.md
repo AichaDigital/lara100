@@ -387,6 +387,68 @@ gh release download v1.0.2
 
 ---
 
+## 🧹 Gestión de Ramas en Packagist
+
+### Problema
+Por defecto, **todas las ramas remotas** aparecen en Packagist como versiones instalables con prefijo `dev-` (ej: `dev-refactor/algo`, `dev-feature/nueva`), lo cual contamina las versiones disponibles.
+
+### Solución Implementada
+El `composer.json` está configurado con:
+
+```json
+{
+    "non-feature-branches": ["main", "develop"],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    }
+}
+```
+
+**Esto significa:**
+- ✅ Solo `main` y `develop` aparecen como versiones dev en Packagist
+- ❌ Todas las demás ramas (`feature/*`, `release/*`, `refactor/*`) son ignoradas
+- 🎯 `dev-main` se mapea a `1.x-dev` para mejor versionado
+
+### Buenas Prácticas
+
+1. **Siempre eliminar la rama remota después del merge:**
+   ```bash
+   gh pr merge --squash --delete-branch
+   ```
+   El flag `--delete-branch` elimina automáticamente la rama del remoto.
+
+2. **Si olvidaste eliminar una rama, hazlo manualmente:**
+   ```bash
+   # Ver ramas remotas
+   git branch -r
+   
+   # Eliminar rama remota
+   git push origin --delete feature/nombre-rama
+   ```
+
+3. **Limpiar ramas locales huérfanas:**
+   ```bash
+   # Actualizar referencias remotas
+   git fetch --prune
+   
+   # Ver ramas locales sin remoto
+   git branch -vv | grep 'gone]'
+   
+   # Eliminar ramas locales huérfanas
+   git branch -D nombre-rama
+   ```
+
+### Packagist y Sincronización
+
+- Packagist se sincroniza automáticamente vía webhook
+- Los cambios en `composer.json` pueden tardar unos minutos en reflejarse
+- Puedes forzar actualización: [Packagist Dashboard](https://packagist.org/packages/aichadigital/lara100) → "Update"
+- Las ramas eliminadas del remoto desaparecerán de Packagist en la próxima sincronización
+
+---
+
 ## 📚 Recursos
 
 - [GitHub CLI Manual](https://cli.github.com/manual/)
