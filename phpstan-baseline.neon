@@ -42,3 +42,15 @@ parameters:
 			count: 3
 			path: tests/Feature/HasBase100TraitTest.php
 
+		-
+			rawMessage: 'Parameter #3 $value of method AichaDigital\Lara100\Casts\Base100Int::set() expects int|null, float given.'
+			identifier: argument.type
+			count: 3
+			path: tests/Unit/Casts/Base100IntTest.php
+
+		-
+			rawMessage: 'Parameter #3 $value of method AichaDigital\Lara100\Casts\Base100Int::set() expects int|null, string given.'
+			identifier: argument.type
+			count: 2
+			path: tests/Unit/Casts/Base100IntTest.php
+
