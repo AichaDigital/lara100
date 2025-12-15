@@ -2,6 +2,40 @@
 
 All notable changes to `lara100` will be documented in this file.
 
+## 1.1.0 - 2025-11-23
+
+### Added
+
+- **Base100Int Cast**: New cast that maintains integer values throughout application lifecycle
+  - Prevents floating-point precision errors in financial calculations
+  - Essential for fiscal compliance (AEAT/Verifactu)
+  - Works with integer values in both database AND application
+  - Example: DB stores 1999 → App uses 1999 (not 19.99)
+- **Comprehensive Testing**: 169 new tests for Base100Int cast
+  - Financial calculation precision tests
+  - Edge case coverage
+  - Rounding mode validation
+- **Release Workflow Documentation**: Complete guide at `.github/RELEASE_WORKFLOW.md`
+  - Step-by-step release process with `gh` CLI
+  - Quality gates checklist
+  - Useful shell aliases
+  - Troubleshooting guide
+
+### Fixed
+
+- **Float Precision Issue**: Resolved critical precision problem with Base100 cast (see `ISSUE_BASE100_FLOAT.md`)
+- **Packagist Configuration**: Prevent development branches from appearing in Packagist
+  - Added `non-feature-branches` configuration
+  - Branch alias mapping `dev-main` to `1.x-dev`
+
+### Technical Details
+
+- New file: `src/Casts/Base100Int.php` (67 lines)
+- New tests: `tests/Unit/Casts/Base100IntTest.php` (169 tests)
+- Updated phpstan baseline for test edge cases
+- Maintained 100% code coverage
+- All quality gates passing (PHPStan MAX, Pest)
+
 ## 1.0.0 - 2025-10-10
 
 ### Added
