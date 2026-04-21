@@ -7,7 +7,7 @@ parameters:
 			path: tests/Feature/HasBase100TraitTest.php
 
 		-
-			rawMessage: Cannot access property $cost on object|null.
+			rawMessage: Cannot access property $cost on stdClass|null.
 			identifier: property.nonObject
 			count: 1
 			path: tests/Feature/HasBase100TraitTest.php
@@ -19,7 +19,7 @@ parameters:
 			path: tests/Feature/HasBase100TraitTest.php
 
 		-
-			rawMessage: Cannot access property $price on object|null.
+			rawMessage: Cannot access property $price on stdClass|null.
 			identifier: property.nonObject
 			count: 1
 			path: tests/Feature/HasBase100TraitTest.php
@@ -31,16 +31,34 @@ parameters:
 			path: tests/Feature/HasBase100TraitTest.php
 
 		-
-			rawMessage: Cannot access property $tax on object|null.
+			rawMessage: Cannot access property $tax on stdClass|null.
 			identifier: property.nonObject
 			count: 1
 			path: tests/Feature/HasBase100TraitTest.php
 
 		-
-			rawMessage: 'Unable to resolve the template type TAndValue in call to method Pest\Expectation<mixed>::and()'
-			identifier: argument.templateType
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 4
+			path: tests/Unit/Casts/Base100AtomicKillerTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Casts/Base100BcmathTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 2
+			path: tests/Unit/Casts/Base100CoverageTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
 			count: 3
-			path: tests/Feature/HasBase100TraitTest.php
+			path: tests/Unit/Casts/Base100FinalPushTest.php
 
 		-
 			rawMessage: 'Parameter #3 $value of method AichaDigital\Lara100\Casts\Base100Int::set() expects int|null, float given.'
@@ -53,4 +71,34 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: tests/Unit/Casts/Base100IntTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 6
+			path: tests/Unit/Casts/Base100KillMutationsTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Casts/Base100MutationTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Casts/Base100RoundingTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 1
+			path: tests/Unit/Casts/Base100TypeStrictnessTest.php
+
+		-
+			rawMessage: 'Call to an undefined method Pest\PendingCalls\TestCall::markTestSkipped().'
+			identifier: method.notFound
+			count: 7
+			path: tests/Unit/Casts/Base100UltraKillerTest.php
 
