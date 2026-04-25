@@ -2,6 +2,47 @@
 
 All notable changes to `lara100` will be documented in this file.
 
+## 1.2.1 - 2026-04-25
+
+### Maintenance
+
+- **CI/CD hardening**: align with AichaDigital convention (mustache, lararoi, lara-verifactu)
+  - Add `.github/dependabot.yml` — weekly bumps for `composer` and `github-actions`
+  - Add `.github/workflows/dependabot-auto-merge.yml` — auto-squash for `semver-minor` and `semver-patch` updates
+  - Branch protection enabled on `main` (mirror of lararoi: `enforce_admins`, `linear_history`, `block_creations`, no required reviews for single-dev)
+- **GitHub Actions**: bump `actions/checkout` to v6 across all workflows
+- **Dependencies (via Dependabot)**: bump `dependabot/fetch-metadata` from 2.4.0 to 3.1.0
+- **PHPStan baseline**: regenerate for Pest 4 `markTestSkipped` signature
+
+### Fixed
+
+- **Packagist webhook**: realign endpoint to `/api/github` and rotate to the working AichaDigital token. Previous webhook had been silently inactive for 6 months (`last_response: unused`), causing v1.2.0 to never be published until manual force-update on this date.
+
+No runtime/code changes. All updates are tooling and infrastructure.
+
+## 1.2.0 - 2026-04-21
+
+### Added
+
+- **Laravel 13 support**: `illuminate/contracts` and `illuminate/database` now accept `^12.0||^13.0`
+- **CI matrix**: extended to Laravel 12.* + Laravel 13.* across PHP 8.3 and 8.4
+
+### Changed
+
+- **`orchestra/testbench`**: bumped to `^10.6||^11.0`
+
+### Removed
+
+- **Laravel 11 support** (EOL): dropped from `illuminate/*` constraints
+
+### Compatibility
+
+| | Supported |
+|---|---|
+| PHP | 8.3, 8.4 |
+| Laravel | 12, 13 |
+| Testbench | 10.6+, 11 |
+
 ## 1.1.0 - 2025-11-23
 
 ### Added
