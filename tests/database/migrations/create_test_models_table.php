@@ -15,6 +15,8 @@ return new class extends Migration
             $table->integer('price')->default(0);  // Stores cents: 1999 = $19.99
             $table->integer('cost')->default(0);   // Stores cents: 1500 = $15.00
             $table->integer('tax')->default(0);    // Stores cents: 250 = $2.50
+            $table->integer('fd_amount')->nullable();
+            $table->integer('fd_rate')->nullable();
             $table->timestamps();
         });
     }
