@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property \AichaDigital\Lara100\ValueObjects\FixedDecimal|null $fd_amount
  * @property \AichaDigital\Lara100\ValueObjects\FixedDecimal|null $fd_rate
  */
-class FixedDecimalTestModel extends Model
+final class FixedDecimalTestModel extends Model
 {
+    public $timestamps = false;
+
     protected $table = 'test_models';
 
     protected $guarded = [];
-
-    public $timestamps = false;
 
     protected function casts(): array
     {
