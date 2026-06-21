@@ -139,10 +139,6 @@ describe('Base100 Cast - Mutation Testing', function () {
     });
 
     it('validates precision parameters in bcmath operations', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(useBcmath: true);
 
@@ -163,7 +159,7 @@ describe('Base100 Cast - Mutation Testing', function () {
             $stored = $cast->set($model, 'price', $expected, []);
             expect($stored)->toBe($stored);
         }
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('ensures type safety with extreme values', function () {
         $model = new TestModel;

@@ -76,10 +76,6 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
     // ===================================================================
 
     it('uses constructor bcmath parameter when provided', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
 
         // When $useBcmath IS provided as true, it should use BCMath
@@ -93,7 +89,7 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
 
         $result = $cast->get($model, 'price', 1999, []);
         expect($result)->toBe(19.99);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('uses config bcmath when constructor parameter is null', function () {
         $model = new TestModel;
@@ -205,10 +201,6 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
     // ===================================================================
 
     it('executes bcmath path only when enabled', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
 
         // BCMath enabled - should use bcdiv
@@ -222,13 +214,9 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
         // Both should give same result but through different code paths
         expect($resultEnabled)->toBe(19.99);
         expect($resultDisabled)->toBe(19.99);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('executes bcmath path in set only when enabled', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
 
         // BCMath enabled - should use bcmul
@@ -242,17 +230,13 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
         // Both should give same result but through different code paths
         expect($resultEnabled)->toBe(1999);
         expect($resultDisabled)->toBe(1999);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     // ===================================================================
     // KILLING Precision Parameter Mutations (bcmath precision)
     // ===================================================================
 
     it('requires specific precision in bcdiv for correct results', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -269,13 +253,9 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
             $result = $cast->get($model, 'price', $stored, []);
             expect($result)->toBe($expected);
         }
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('requires specific precision in bcmul for correct results', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -287,17 +267,13 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
 
         // Edge case: very small value
         expect($cast->set($model, 'price', 0.05, []))->toBeInt();
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     // ===================================================================
     // KILLING Increment/Decrement Integer Mutations
     // ===================================================================
 
     it('requires exact precision value 2 not 1 or 3 in bcmath', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -308,7 +284,7 @@ describe('Base100 Cast - Kill Remaining Mutations', function () {
         // Test with value that shows precision matters
         $result = $cast->get($model, 'price', 1, []);
         expect($result)->toBe(0.01);  // Requires precision=2
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('validates round precision is 2 for decimal cents', function () {
         $model = new TestModel;

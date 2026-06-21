@@ -109,10 +109,6 @@ describe('Base100 Cast - 100% Coverage', function () {
     });
 
     it('covers bcmath branch in get method', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
 
         // Line 65-67: BCMath path
@@ -124,13 +120,9 @@ describe('Base100 Cast - 100% Coverage', function () {
         $cast2 = new Base100(null, false);
         $result2 = $cast2->get($model, 'price', 1999, []);
         expect($result2)->toBe(19.99);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('covers bcmath branch in set method', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
 
         // Line 86-91: BCMath path
@@ -142,7 +134,7 @@ describe('Base100 Cast - 100% Coverage', function () {
         $cast2 = new Base100(null, false);
         $result2 = $cast2->set($model, 'price', 19.99, []);
         expect($result2)->toBe(1999);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('covers all constructor parameter combinations', function () {
         $model = new TestModel;

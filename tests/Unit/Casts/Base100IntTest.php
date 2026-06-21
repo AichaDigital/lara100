@@ -68,6 +68,7 @@ describe('Base100Int Cast', function () {
         $model = new TestModel;
 
         expect($cast->get($model, 'amount', 'invalid', []))->toBe(0)
+            // @phpstan-ignore argument.type (intentional: invalid string input under test)
             ->and($cast->set($model, 'amount', 'invalid', []))->toBe(0);
     });
 
@@ -76,8 +77,11 @@ describe('Base100Int Cast', function () {
         $model = new TestModel;
 
         // When setting float values, they are truncated to integers
+        // @phpstan-ignore argument.type (intentional: float input under test to verify truncation)
         expect($cast->set($model, 'amount', 123.45, []))->toBe(123)
+            // @phpstan-ignore argument.type (intentional: float input under test to verify truncation)
             ->and($cast->set($model, 'amount', 999.99, []))->toBe(999)
+            // @phpstan-ignore argument.type (intentional: float input under test to verify truncation)
             ->and($cast->set($model, 'amount', 0.99, []))->toBe(0);
     });
 
@@ -86,6 +90,7 @@ describe('Base100Int Cast', function () {
         $model = new TestModel;
 
         expect($cast->get($model, 'amount', '1234', []))->toBe(1234)
+            // @phpstan-ignore argument.type (intentional: string input under test)
             ->and($cast->set($model, 'amount', '1234', []))->toBe(1234);
     });
 });
