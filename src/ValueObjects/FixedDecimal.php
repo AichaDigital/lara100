@@ -72,6 +72,57 @@ final class FixedDecimal implements JsonSerializable
         return self::ofUnscaled(0, $scale);
     }
 
+    public function plus(self $other): self
+    {
+        return new self($this->value->plus($other->value));
+    }
+
+    public function minus(self $other): self
+    {
+        return new self($this->value->minus($other->value));
+    }
+
+    public function multipliedBy(int|self $factor): self
+    {
+        $operand = $factor instanceof self ? $factor->value : $factor;
+
+        return new self($this->value->multipliedBy($operand));
+    }
+
+    public function dividedBy(int|self $divisor, int $scale, RoundingMode $mode): self
+    {
+        if ($scale < 0) {
+            throw InvalidFixedDecimal::negativeScale($scale);
+        }
+
+        $operand = $divisor instanceof self ? $divisor->value : $divisor;
+
+        try {
+            return new self($this->value->dividedBy($operand, $scale, self::mapRounding($mode)));
+        } catch (MathException $e) {
+            throw InvalidFixedDecimal::fromEngine($e);
+        }
+    }
+
+    public function toScale(int $scale, RoundingMode $mode = RoundingMode::HalfUp): self
+    {
+        if ($scale < 0) {
+            throw InvalidFixedDecimal::negativeScale($scale);
+        }
+
+        return new self($this->value->toScale($scale, self::mapRounding($mode)));
+    }
+
+    public function negated(): self
+    {
+        return new self($this->value->negated());
+    }
+
+    public function abs(): self
+    {
+        return new self($this->value->abs());
+    }
+
     public function scale(): int
     {
         return $this->value->getScale();
