@@ -123,6 +123,41 @@ final class FixedDecimal implements JsonSerializable
         return new self($this->value->abs());
     }
 
+    public function isEqualTo(self $other): bool
+    {
+        return $this->value->isEqualTo($other->value);
+    }
+
+    public function isZero(): bool
+    {
+        return $this->value->isZero();
+    }
+
+    public function isPositive(): bool
+    {
+        return $this->value->isPositive();
+    }
+
+    public function isNegative(): bool
+    {
+        return $this->value->isNegative();
+    }
+
+    public function isGreaterThan(self $other): bool
+    {
+        return $this->value->isGreaterThan($other->value);
+    }
+
+    public function isLessThan(self $other): bool
+    {
+        return $this->value->isLessThan($other->value);
+    }
+
+    public function compareTo(self $other): int
+    {
+        return $this->value->compareTo($other->value);
+    }
+
     public function scale(): int
     {
         return $this->value->getScale();
