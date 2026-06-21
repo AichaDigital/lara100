@@ -31,7 +31,7 @@ final class FixedDecimal implements JsonSerializable
         return new self(BigDecimal::ofUnscaledValue($unscaled, $scale));
     }
 
-    public static function ofDecimalString(string $value, ?int $scale = null): self
+    public static function ofDecimalString(string $value, ?int $scale = null, RoundingMode $mode = RoundingMode::HalfUp): self
     {
         if ($scale !== null && $scale < 0) {
             throw InvalidFixedDecimal::negativeScale($scale);
@@ -40,8 +40,11 @@ final class FixedDecimal implements JsonSerializable
         try {
             $decimal = BigDecimal::of($value);
 
+            // $scale is optional: when omitted the string's own scale is kept
+            // exactly. When given, the value is re-scaled with $mode (default
+            // HalfUp); pass another RoundingMode for the coercion if needed.
             if ($scale !== null) {
-                $decimal = $decimal->toScale($scale, self::mapRounding(RoundingMode::HalfUp));
+                $decimal = $decimal->toScale($scale, self::mapRounding($mode));
             }
         } catch (MathException $e) {
             throw InvalidFixedDecimal::fromEngine($e);

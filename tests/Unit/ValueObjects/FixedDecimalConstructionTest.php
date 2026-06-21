@@ -23,6 +23,11 @@ it('re-scales a decimal string to the requested scale with HalfUp', function () 
     expect(FixedDecimal::ofDecimalString('19.995', 2)->toDecimalString())->toBe('20.00');
 });
 
+it('honors an explicit rounding mode when re-scaling a decimal string', function () {
+    expect(FixedDecimal::ofDecimalString('19.995', 2, RoundingMode::HalfDown)->toDecimalString())->toBe('19.99')
+        ->and(FixedDecimal::ofDecimalString('19.991', 2, RoundingMode::Ceiling)->toDecimalString())->toBe('20.00');
+});
+
 it('rejects a negative scale', function () {
     FixedDecimal::ofUnscaled(1, -1);
 })->throws(InvalidFixedDecimal::class);
