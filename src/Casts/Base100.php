@@ -8,6 +8,10 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @deprecated since 1.3.0. Returns a float, reintroducing the precision drift this
+ *             package exists to prevent. Use FixedDecimal + FixedDecimalCast for new
+ *             code, or Base100Int for raw integer storage. Removed in 2.0.0.
+ *
  * Cast that converts integer database values (cents) to decimal application values.
  *
  * This cast prevents floating-point precision errors by storing monetary/decimal values
