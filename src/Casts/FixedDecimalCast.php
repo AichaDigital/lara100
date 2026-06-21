@@ -40,6 +40,10 @@ final class FixedDecimalCast implements CastsAttributes
             return null;
         }
 
+        if (! is_numeric($value)) {
+            throw InvalidFixedDecimal::nonNumericStorage($key, $value);
+        }
+
         return FixedDecimal::ofUnscaled((int) $value, $this->scale);
     }
 

@@ -19,3 +19,11 @@ it('describes a rejected scalar assignment with the offending type', function ()
     expect($e->getMessage())->toContain('int')
         ->and($e->getMessage())->toContain('FixedDecimal');
 });
+
+it('describes a non-numeric storage value with the column key and the offending type', function () {
+    $e = InvalidFixedDecimal::nonNumericStorage('fd_amount', 'corrupt');
+
+    expect($e)->toBeInstanceOf(InvalidFixedDecimal::class)
+        ->and($e->getMessage())->toContain('fd_amount')
+        ->and($e->getMessage())->toContain('string');
+});

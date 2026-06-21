@@ -38,4 +38,11 @@ final class InvalidFixedDecimal extends InvalidArgumentException implements Lara
             .'Build it explicitly via FixedDecimal::ofUnscaled(), ofDecimalString(), or ofFloat().'
         );
     }
+
+    public static function nonNumericStorage(string $key, mixed $value): self
+    {
+        $type = get_debug_type($value);
+
+        return new self("FixedDecimalCast read a non-numeric value ({$type}) from column [{$key}]; expected an integer (unscaled) column.");
+    }
 }
