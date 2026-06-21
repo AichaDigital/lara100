@@ -2,6 +2,23 @@
 
 All notable changes to `lara100` will be documented in this file.
 
+## [2.0.0] - 2026-06-21
+
+**Breaking change.** Removes all deprecated 1.x API.
+
+### Removed
+
+- `Base100` cast (`src/Casts/Base100.php`) — converted stored integers to PHP `float`, reintroducing IEEE-754 imprecision. Deprecated since 1.3.0.
+- `HasBase100` trait (`src/Concerns/HasBase100.php`) — convenience trait backed by the removed `Base100` cast. Deprecated since 1.3.0.
+- Config file `config/lara100.php` and its keys `rounding_mode` / `use_bcmath` — only served the removed `Base100` cast. Deprecated since 1.3.0.
+- `->hasConfigFile()` from `Lara100ServiceProvider` — the package no longer ships a publishable config.
+
+`Base100Int` (1.1.0+) and `FixedDecimal` / `FixedDecimalCast` (1.3.0+) are **unaffected** and remain fully supported.
+
+**Migration:** replace `Base100::class` with `FixedDecimalCast::class.':<scale>'` (see README). Remove any `php artisan vendor:publish --tag=lara100-config` calls from your project setup.
+
+---
+
 ## [Unreleased]
 
 > Targeting **1.3.0** (additive, non-breaking).
