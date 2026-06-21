@@ -16,13 +16,17 @@ use Illuminate\Database\Eloquent\Model;
  * plumbing only: assignment accepts FixedDecimal|null. Scalars are rejected so
  * callers choose the conversion (ofUnscaled/ofDecimalString/ofFloat) explicitly.
  *
+ * The scale is REQUIRED and has no default: it dictates how the stored integer
+ * is interpreted (1999 at scale 2 is 19.99, but at scale 4 it is 0.1999). A
+ * silent default would risk misreading a column, so an omitted scale must fail.
+ *
  * @implements CastsAttributes<FixedDecimal|null, FixedDecimal|null>
  */
 final class FixedDecimalCast implements CastsAttributes
 {
     private int $scale;
 
-    public function __construct(int|string $scale = 2)
+    public function __construct(int|string $scale)
     {
         $this->scale = (int) $scale;
     }
