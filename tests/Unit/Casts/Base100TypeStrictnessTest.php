@@ -160,10 +160,6 @@ describe('Base100 Cast - Type Strictness Detection', function () {
     });
 
     it('validates bcmath conditional branches with assertion multiplication', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required');
-        }
-
         $model = new TestModel;
 
         // Multiple assertions to catch any deviation
@@ -191,5 +187,5 @@ describe('Base100 Cast - Type Strictness Detection', function () {
         expect($setBcmath)->toBe($setStandard);
         expect($setBcmath)->toBeInt();
         expect(gettype($setBcmath))->toBe('integer');
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required');
 });

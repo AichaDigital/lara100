@@ -26,6 +26,8 @@ return [
     |
     */
 
+    // @deprecated since 1.3.0 — only affects the deprecated float Base100 cast.
+    // FixedDecimal takes an explicit RoundingMode per operation. Removed in 2.0.0.
     'rounding_mode' => env('LARA100_ROUNDING_MODE', PHP_ROUND_HALF_UP),
 
     /*
@@ -43,6 +45,8 @@ return [
     |
     */
 
+    // @deprecated since 1.3.0 — only affects the deprecated float Base100 cast.
+    // FixedDecimal uses brick/math; this flag is ignored by it. Removed in 2.0.0.
     'use_bcmath' => env('LARA100_USE_BCMATH', false),
 
 ];

@@ -33,6 +33,8 @@ describe('HasBase100 Trait', function () {
             ->where('id', $model->id)
             ->first(['price', 'cost', 'tax']);
 
+        assert($raw instanceof stdClass);
+
         expect($raw)->not->toBeNull()
             ->and($raw->price)->toBe(5999)  // Stored as 5999 cents
             ->and($raw->cost)->toBe(3500)  // Stored as 3500 cents
@@ -96,6 +98,7 @@ describe('HasBase100 Trait', function () {
 
         $refreshed = $model->fresh();
         expect($refreshed)->not->toBeNull();
+        assert($refreshed instanceof TestModelWithTrait);
 
         expect($refreshed->price)->toBe(20.00)
             ->and($refreshed->cost)->toBe(10.00)

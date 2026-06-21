@@ -61,10 +61,6 @@ describe('Base100 Cast - Rounding Modes', function () {
     });
 
     it('supports BCMath when enabled and available', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         config(['lara100.use_bcmath' => true]);
 
         $cast = new Base100;
@@ -73,7 +69,7 @@ describe('Base100 Cast - Rounding Modes', function () {
         // BCMath debe dar los mismos resultados
         expect($cast->get($model, 'price', 1999, []))->toBe(19.99)
             ->and($cast->set($model, 'price', 19.99, []))->toBe(1999);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('falls back gracefully when BCMath not available', function () {
         config(['lara100.use_bcmath' => true]);

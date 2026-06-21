@@ -2,6 +2,29 @@
 
 All notable changes to `lara100` will be documented in this file.
 
+## [Unreleased]
+
+> Targeting **1.3.0** (additive, non-breaking).
+
+### Added
+
+- `FixedDecimal` value object: immutable, scale-configurable, exact decimal built on `brick/math`. Constructors: `ofUnscaled`, `ofDecimalString`, `ofFloat`, `zero`. Full arithmetic (`plus`, `minus`, `multipliedBy`, `dividedBy`, `toScale`, `negated`, `abs`), comparison (`isEqualTo`, `isZero`, `isPositive`, `isNegative`, `isGreaterThan`, `isLessThan`, `compareTo`), and output (`toDecimalString`, `unscaledValue`, `scale`, `toFloat`, `toBigDecimal`). `jsonSerialize()` returns the exact decimal string.
+- `FixedDecimalCast`: scale-aware Eloquent cast over integer (unscaled) columns. Declared as `FixedDecimalCast::class.':<scale>'`. Scale is required. Strict assignment: only `FixedDecimal|null` accepted; scalars are rejected at the boundary.
+- `RoundingMode` enum: seven cases (`Up`, `Down`, `Ceiling`, `Floor`, `HalfUp`, `HalfDown`, `HalfEven`). Fully encapsulated from `brick/math` internals. `HalfUp` is the EU/Spain fiscal default; `HalfEven` for banker's rounding.
+- `Lara100Exception` marker interface and `InvalidFixedDecimal` exception covering negative scale, non-finite float, non-`FixedDecimal` assignment, and unscaled integer overflow.
+
+### Deprecated
+
+- `Base100` cast (returns `float`): deprecated since 1.3.0, to be removed in 2.0.0. Migrate to `FixedDecimalCast::class.':<scale>'`.
+- `HasBase100` trait: deprecated since 1.3.0, to be removed in 2.0.0. Migrate to explicit `casts()` with `FixedDecimalCast`.
+- Config keys `rounding_mode` and `use_bcmath` in `config/lara100.php`: ignored by `FixedDecimal`; retained for `Base100` backward compatibility; removed in 2.0.0.
+
+### Dependencies
+
+- Added `brick/math ^0.14.2` for exact arithmetic (fully encapsulated; `brick` types are not exposed in the public API except via the `toBigDecimal()` escape hatch).
+
+---
+
 ## 1.2.1 - 2026-04-25
 
 ### Maintenance

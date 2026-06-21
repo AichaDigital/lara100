@@ -77,10 +77,6 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
     // ATOMIC KILLER: Line 67-68 IfNegated + precision mutations
     // =============================================================================
     it('if negation in bcmath check would execute wrong code in get', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required');
-        }
-
         $model = new TestModel;
 
         // Force BCMath enabled
@@ -92,16 +88,12 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
 
         expect($result)->toBeFloat();
         expect($result)->toBeGreaterThan(9999999999.0);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required');
 
     // =============================================================================
     // ATOMIC KILLER: Line 88-92 bcmath set() mutations
     // =============================================================================
     it('if negation in bcmath check would execute wrong code in set', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required');
-        }
-
         $model = new TestModel;
 
         // Force BCMath enabled
@@ -113,13 +105,9 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
 
         expect($result)->toBeInt();
         expect($result)->toBe(999999);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required');
 
     it('bcmul precision MUST be 2 - precision 1 gives scientifically different results', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -133,7 +121,7 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
 
         // Verify all are ints
         expect($cast->set($model, 'price', 0.01, []))->toBeInt();
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required');
 
     // =============================================================================
     // Additional atomic killers for remaining stubborn mutations
@@ -155,10 +143,6 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
     });
 
     it('validates exact mathematical equivalence between modes', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required');
-        }
-
         $model = new TestModel;
 
         $testValues = [1, 10, 100, 999, 1999, 9999, 12345];
@@ -180,7 +164,7 @@ describe('Base100 Cast - Atomic Mutation Killer', function () {
             expect($setBcmath)->toBe($setStandard);
             expect($setBcmath)->toBe($storedValue);
         }
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required');
 
     it('precision parameters must be exact - deviation detected by round trip', function () {
         $model = new TestModel;

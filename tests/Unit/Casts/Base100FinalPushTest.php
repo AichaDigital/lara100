@@ -125,10 +125,6 @@ describe('Base100 Cast - Final Push to 70%', function () {
     });
 
     it('validates precision parameter is exactly 2 not others', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -149,7 +145,7 @@ describe('Base100 Cast - Final Push to 70%', function () {
             $strResult = (string) $result;
             expect($strResult)->toContain('.');
         }
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('round precision parameter must be exactly 2 for cents', function () {
         $model = new TestModel;
@@ -198,10 +194,6 @@ describe('Base100 Cast - Final Push to 70%', function () {
     });
 
     it('incrementing precision would give incorrect results', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -215,13 +207,9 @@ describe('Base100 Cast - Final Push to 70%', function () {
         // Ensure it's not some other value
         expect($result)->toBeGreaterThan(19.98);
         expect($result)->toBeLessThan(20.00);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('decrementing precision would lose decimal accuracy', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath extension not available');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -234,7 +222,7 @@ describe('Base100 Cast - Final Push to 70%', function () {
         // Verify both decimal places are preserved
         $strResult = number_format($result, 2);
         expect($strResult)->toBe('12.34');
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath extension not available');
 
     it('validates type safety with mixed numeric types', function () {
         $model = new TestModel;

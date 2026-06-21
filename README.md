@@ -1,81 +1,69 @@
-# Lara100 - Base-100 Cast for Laravel
+# Lara100 — Exact Decimal for Laravel
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Atests+branch%3Amain)
 [![Code Style](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/pint.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Apint+branch%3Amain)
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/aichadigital/lara100/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/aichadigital/lara100/actions?query=workflow%3Aphpstan+branch%3Amain)
 [![Latest Version](https://img.shields.io/github/v/release/aichadigital/lara100?style=flat-square)](https://github.com/aichadigital/lara100/releases)
 
-A Laravel package that provides a custom Eloquent cast for handling monetary/decimal values by storing them as integers (cents) in the database while working with decimals in your PHP code, eliminating floating-point precision errors.
+A Laravel package providing an **immutable, scale-configurable exact decimal value object** (`FixedDecimal`) and a matching Eloquent cast (`FixedDecimalCast`). Values are stored as plain integers (unscaled) in the database; the cast and value object handle all precision arithmetic using `brick/math` under the hood.
 
 ## Why Lara100?
 
-Floating-point arithmetic in PHP (and most programming languages) can lead to precision errors:
+Floating-point arithmetic is not safe for monetary or fiscal values:
 
 ```php
-0.1 + 0.2 === 0.3  // false! 😱
-// Result: 0.30000000000000004
+0.1 + 0.2 === 0.3;  // false — result is 0.30000000000000004
 ```
 
-This is particularly problematic when dealing with:
-- 💰 **Monetary values** (prices, amounts, balances)
-- 📊 **Percentages** (tax rates, discounts)
-- 📏 **Any centesimal measurements**
-
-**Lara100** solves this by storing values as integers (cents) in the database, while letting you work with familiar decimal values in your code.
+`FixedDecimal` eliminates this class of error entirely:
 
 ```php
-// In your database: 1999 (integer - cents)
-// In your application: 19.99 (decimal - dollars/euros)
+use AichaDigital\Lara100\ValueObjects\FixedDecimal;
+
+$a = FixedDecimal::ofDecimalString('0.1');
+$b = FixedDecimal::ofDecimalString('0.2');
+$c = $a->plus($b);
+
+$c->toDecimalString();  // '0.3' — exact, always
 ```
+
+Arithmetic is exact at every step. The result serialises as a decimal string (`'0.3'`), not a float, so API consumers and hash-based fiscal systems (AEAT Verifactu, etc.) always receive the canonical value.
+
+## Requirements
+
+- PHP 8.3 or 8.4
+- Laravel 12.x or 13.x
+- `brick/math` ^0.14.2 (pulled in automatically)
 
 ## Installation
-
-You can install the package via Composer:
 
 ```bash
 composer require aichadigital/lara100
 ```
 
-### Configuration (Optional)
-
-You can optionally publish the configuration file:
-
-```bash
-php artisan vendor:publish --tag="lara100-config"
-```
-
-This will create a `config/lara100.php` file where you can configure:
-- **Rounding mode** (default: `PHP_ROUND_HALF_UP`)
-- **BCMath usage** (default: `false`)
-
-Alternatively, you can set these via environment variables in your `.env`:
-
-```env
-# Rounding mode (default: 2 = PHP_ROUND_HALF_UP)
-# 1 = PHP_ROUND_HALF_UP (standard for Spain/EU)
-# 2 = PHP_ROUND_HALF_DOWN
-# 3 = PHP_ROUND_HALF_EVEN (Banker's rounding for accounting)
-# 4 = PHP_ROUND_HALF_ODD
-LARA100_ROUNDING_MODE=1
-
-# Enable BCMath for arbitrary precision (requires bcmath extension)
-LARA100_USE_BCMATH=false
-```
-
-## Requirements
-
-- PHP 8.3 or 8.4
-- Laravel 11.x or 12.x
-- Optional: BCMath extension (for high-precision calculations)
+No configuration file is required for the `FixedDecimal` path. The legacy `config/lara100.php` (deprecated since 1.3.0) is still publishable for projects that still use the `Base100` cast.
 
 ## Usage
 
-### Basic Usage (Cast)
+### 1. Database schema
 
-Apply the `Base100` cast to your model attributes:
+Store unscaled integers. The scale is declared at the model level, not in the column:
 
 ```php
-use AichaDigital\Lara100\Casts\Base100;
+Schema::create('products', function (Blueprint $table) {
+    $table->id();
+    $table->integer('price')->default(0);      // scale 2: 1999 = 19.99
+    $table->integer('exchange_rate')->default(0); // scale 4: 12345 = 1.2345
+    $table->timestamps();
+});
+```
+
+### 2. Model casts
+
+Declare the cast with the scale as a colon-separated suffix. The scale is **required**; omitting it throws immediately rather than silently misinterpreting the column:
+
+```php
+use AichaDigital\Lara100\Casts\FixedDecimalCast;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -83,245 +71,236 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price' => Base100::class,
-            'cost'  => Base100::class,
-            'tax'   => Base100::class,
+            'price'         => FixedDecimalCast::class.':2',  // 1999 → 19.99
+            'exchange_rate' => FixedDecimalCast::class.':4',  // 12345 → 1.2345
         ];
     }
 }
 ```
 
-Now you can work with decimals in your application while storing integers in the database:
+### 3. Reading and writing
+
+The cast accepts only `FixedDecimal|null` on assignment. Scalars are rejected deliberately — callers must choose the conversion explicitly:
 
 ```php
-$product = new Product;
-$product->price = 19.99;  // You set: 19.99 (decimal)
-$product->save();         // DB stores: 1999 (integer cents)
+// Reading: the cast returns a FixedDecimal built from the stored integer
+$product = Product::find(1);
+$price = $product->price;           // FixedDecimal('19.99', scale=2)
+$price->toDecimalString();          // '19.99'
+$price->unscaledValue();            // 1999
+$price->scale();                    // 2
+echo json_encode($price);           // "19.99"  (exact decimal string, not float)
 
-echo $product->price;     // You get: 19.99 (decimal)
+// Writing: build a FixedDecimal explicitly, then assign it
+$product->price = FixedDecimal::ofDecimalString('29.99', 2);
+$product->save();                   // DB stores 2999 (integer)
 
-// Arithmetic operations work perfectly with decimals
-$total = $product->price + $product->tax;  // 19.99 + 2.50 = 22.49 ✅
+// null is allowed for nullable columns
+$product->price = null;
+$product->save();                   // DB stores NULL
 ```
 
-### Advanced Usage (Trait)
-
-For convenience, you can use the `HasBase100` trait to apply the cast to multiple attributes at once:
+Assigning a raw scalar throws `InvalidFixedDecimal` — the strict contract prevents accidental precision loss at the boundary:
 
 ```php
-use AichaDigital\Lara100\Concerns\HasBase100;
-use Illuminate\Database\Eloquent\Model;
+$product->price = 19.99;  // throws InvalidFixedDecimal — use ofDecimalString / ofFloat
+```
 
-class Product extends Model
+### 4. Constructing FixedDecimal
+
+**Recommended constructors:**
+
+```php
+use AichaDigital\Lara100\ValueObjects\FixedDecimal;
+
+// From the raw stored integer (no conversion, no rounding — the cleanest path)
+$price = FixedDecimal::ofUnscaled(1999, 2);   // 19.99
+$rate  = FixedDecimal::ofUnscaled(12345, 4);  // 1.2345
+
+// From a decimal string (parse and optionally coerce to a target scale)
+$price = FixedDecimal::ofDecimalString('19.99');       // scale inferred from the string's decimals (here, 2)
+$price = FixedDecimal::ofDecimalString('19.9', 2);     // coerced to scale 2 → '19.90'
+
+// Zero at a given scale
+$zero = FixedDecimal::zero(2);  // 0.00
+```
+
+**Migration-only boundary (not for new code):**
+
+```php
+use AichaDigital\Lara100\RoundingMode;
+
+// From a float — reintroduces IEEE-754 at the boundary; use only when crossing
+// a legacy float API or when receiving user input that cannot be treated as a string
+$price = FixedDecimal::ofFloat(19.99, 2, RoundingMode::HalfUp);
+```
+
+### 5. Arithmetic
+
+All arithmetic produces a new `FixedDecimal`; the original is unchanged (immutable):
+
+```php
+$price    = FixedDecimal::ofDecimalString('19.99');
+$tax_rate = FixedDecimal::ofDecimalString('0.21');
+
+$tax   = $price->multipliedBy($tax_rate)->toScale(2, RoundingMode::HalfUp);
+$total = $price->plus($tax);
+
+$tax->toDecimalString();    // '4.20'
+$total->toDecimalString();  // '24.19'
+
+// Division always requires an explicit scale and rounding mode
+$half = $total->dividedBy(2, 2, RoundingMode::HalfUp);
+$half->toDecimalString();   // '12.10'
+```
+
+Available arithmetic: `plus`, `minus`, `multipliedBy`, `dividedBy`, `toScale`, `negated`, `abs`.
+
+### 6. Comparison
+
+```php
+$a = FixedDecimal::ofDecimalString('10.00');
+$b = FixedDecimal::ofDecimalString('20.00');
+
+$a->isEqualTo($b);      // false
+$a->isLessThan($b);     // true
+$a->isGreaterThan($b);  // false
+$a->isZero();           // false
+$a->isPositive();       // true
+$a->isNegative();       // false
+$a->compareTo($b);      // -1
+```
+
+### 7. Output
+
+```php
+$price = FixedDecimal::ofUnscaled(1999, 2);
+
+$price->toDecimalString();   // '19.99'   — exact, preferred for persistence / hashing
+$price->unscaledValue();     // 1999      — raw stored integer
+$price->scale();             // 2
+$price->toFloat();           // 19.99     — reintroduces float imprecision; display/legacy only
+$price->toBigDecimal();      // Brick\Math\BigDecimal — escape hatch for raw brick/math use
+json_encode($price);         // "19.99"   — jsonSerialize() returns the decimal string
+```
+
+### 8. RoundingMode
+
+lara100 ships its own `RoundingMode` enum — fully encapsulated from the underlying `brick/math` engine:
+
+| Case | Description | Typical use |
+|------|-------------|-------------|
+| `HalfUp` | 0.5 rounds away from zero | **EU/Spain fiscal standard; default** |
+| `HalfEven` | 0.5 rounds to nearest even | Banker's rounding; accounting |
+| `HalfDown` | 0.5 rounds toward zero | Conservative rounding |
+| `Up` | Always away from zero | Always round up |
+| `Down` | Always toward zero (truncate) | Always truncate |
+| `Ceiling` | Toward positive infinity | |
+| `Floor` | Toward negative infinity | |
+
+`HalfUp` is the European/Spanish fiscal standard and the default wherever lara100 accepts a rounding mode. `HalfEven` (banker's rounding) is the right choice for general accounting aggregations.
+
+Note: the legacy `Base100` cast exposed `PHP_ROUND_HALF_ODD` (mode 4). That mode has **no equivalent** in `FixedDecimal`. It is absent from the industry standards (java.math, IEEE 754, most fiscal specs) and from brick/math. `HalfUp` or `HalfEven` cover all fiscal cases.
+
+## Positioning
+
+lara100 is a **Laravel-native, scale-aware exact decimal** built on top of `brick/math`. It occupies a specific niche — here is when to reach for each option:
+
+| Library | Abstraction | Laravel cast | Currency | When to use |
+|---------|-------------|:------------:|:--------:|-------------|
+| **lara100** | `FixedDecimal` (exact, scale-aware) | Yes (`FixedDecimalCast`) | No | Prices, rates, fiscal amounts in Laravel — exact arithmetic without currency overhead |
+| `brick/math` | `BigDecimal`, `BigInteger` | No | No | Raw exact arithmetic outside Laravel; lara100 builds on this |
+| `brick/money` | `Money` (amount + currency) | No | Yes | Multi-currency systems, allocation, currency conversion |
+| `moneyphp/money` | `Money` (amount + currency) | No | Yes | Same as brick/money; wider ecosystem adoption |
+
+**Choose lara100 when:**
+
+- You are building a Laravel application and want Eloquent models to carry `FixedDecimal` attributes directly
+- You need exact arithmetic over scale-aware values (prices at scale 2, VAT rates at scale 4, etc.)
+- You do not need multi-currency support or allocation algorithms
+
+**Reach for brick/math directly when:**
+
+- You need exact arithmetic outside of Laravel (CLI tools, pure PHP libraries, etc.)
+- You need `BigInteger` or `BigRational` (lara100 only wraps `BigDecimal`)
+
+**Reach for brick/money or moneyphp/money when:**
+
+- You need currency codes, currency conversion, or monetary allocation (splitting a total into N parts that sum exactly)
+
+lara100 encapsulates `brick/math ^0.14.2` internally. The dependency is lightweight; `brick` types are not exposed except via the explicit `toBigDecimal()` escape hatch. Starting with 1.3.0 the "zero external dependencies" claim no longer applies — lara100 is still lightweight but it does pull in `brick/math`.
+
+## Comparison with Alternatives
+
+| Solution | DB column | PHP value | Precision | Laravel cast | Multi-currency |
+|----------|-----------|-----------|-----------|:------------:|:--------------:|
+| **lara100 `FixedDecimal`** | `INTEGER` (unscaled) | `FixedDecimal` (exact) | Exact | Yes | No |
+| **lara100 `Base100`** (deprecated) | `INTEGER` (cents) | `float` | Float — imprecise | Yes | No |
+| `brick/math` (`BigDecimal`) | — | `BigDecimal` (exact) | Exact | No | No |
+| `brick/money` | `INTEGER` | `Money` (exact + currency) | Exact | No | Yes |
+| `moneyphp/money` | `INTEGER` | `Money` (exact + currency) | Exact | No | Yes |
+| Native `DECIMAL` column | `DECIMAL(10,2)` | `float` | Float — imprecise | No | No |
+
+## Legacy / Deprecated
+
+### `Base100` cast and `HasBase100` trait (deprecated since 1.3.0, removed in 2.0.0)
+
+The original `Base100` cast converts stored integers to PHP `float` on read. While the integer storage is correct, the float representation reintroduces IEEE-754 imprecision in the application layer — precisely the problem lara100 was designed to solve.
+
+**Migration path:**
+
+Replace `Base100` with `FixedDecimalCast` at the scale your column uses (almost always 2 for cent-based money):
+
+```php
+// Before (deprecated)
+use AichaDigital\Lara100\Casts\Base100;
+use AichaDigital\Lara100\Concerns\HasBase100;
+
+class Invoice extends Model
 {
     use HasBase100;
 
     protected function base100Attributes(): array
     {
-        return ['price', 'cost', 'tax', 'discount'];
+        return ['subtotal', 'tax_amount', 'total'];
+    }
+}
+
+// After (1.3.0+)
+use AichaDigital\Lara100\Casts\FixedDecimalCast;
+
+class Invoice extends Model
+{
+    protected function casts(): array
+    {
+        return [
+            'subtotal'   => FixedDecimalCast::class.':2',
+            'tax_amount' => FixedDecimalCast::class.':2',
+            'total'      => FixedDecimalCast::class.':2',
+        ];
     }
 }
 ```
 
-The trait automatically applies the `Base100` cast to all specified attributes.
+After the migration, attributes return `FixedDecimal` objects instead of floats. Update any code that assigned a raw float to these attributes — use `FixedDecimal::ofDecimalString()` or `FixedDecimal::ofUnscaled()` instead.
 
-## How It Works
+`Base100Int` (introduced in 1.1.0) is **not deprecated** — it remains valid for columns where you genuinely need the raw unscaled integer in the application layer.
 
-### Database → Application (GET)
-```php
-// Database stores: 1999 (INTEGER cents)
-// Cast converts to: 19.99 (DECIMAL)
-$product->price;  // 19.99
-```
-
-### Application → Database (SET)
-```php
-// Application receives: 19.99 (DECIMAL)
-// Cast converts to: 1999 (INTEGER cents)
-$product->price = 19.99;
-$product->save();  // Stores 1999 in DB
-```
-
-### Rounding Behavior
-
-By default, the cast uses **Round Half Up (PHP_ROUND_HALF_UP)**:
-- `0.555` → `0.56` (rounds up when exactly halfway)
-- `0.554` → `0.55`
-
-This is the standard rounding mode used in Spain, the EU, and most countries.
-
-#### Configuring Rounding Mode
-
-You can configure the rounding mode globally via config or per-attribute:
-
-**Global configuration** (affects all casts):
-```env
-# In .env
-LARA100_ROUNDING_MODE=1  # PHP_ROUND_HALF_UP (default)
-```
-
-**Per-attribute override** (in your model):
-```php
-use AichaDigital\Lara100\Casts\Base100;
-
-protected function casts(): array
-{
-    return [
-        'price' => Base100::class,                      // Uses config default
-        'tax' => new Base100(PHP_ROUND_HALF_EVEN),      // Banker's rounding
-        'discount' => new Base100(PHP_ROUND_HALF_DOWN), // Always round down
-    ];
-}
-```
-
-#### Available Rounding Modes
-
-| Mode | Constant | Behavior | Use Case |
-|------|----------|----------|----------|
-| **Half Up** | `PHP_ROUND_HALF_UP` (1) | 0.555→0.56, 0.545→0.55 | Spain/EU standard |
-| **Half Even** | `PHP_ROUND_HALF_EVEN` (3) | 0.555→0.56, 0.545→0.54 | Accounting (Banker's) |
-| **Half Down** | `PHP_ROUND_HALF_DOWN` (2) | 0.555→0.55, 0.545→0.54 | Conservative rounding |
-| **Half Odd** | `PHP_ROUND_HALF_ODD` (4) | 0.555→0.55, 0.545→0.55 | Specialized cases |
-
-#### BCMath Support
-
-For maximum precision with very large amounts, enable BCMath:
-
-```env
-LARA100_USE_BCMATH=true
-```
-
-Or per-attribute:
-```php
-'balance' => new Base100(useBcmath: true),
-```
-
-**Note:** Requires the `bcmath` PHP extension to be installed.
-
-## Examples
-
-### Working with Monetary Values
-
-```php
-$invoice = new Invoice;
-$invoice->subtotal = 100.00;  // You set: $100.00 (decimal)
-$invoice->tax = 13.00;        // You set: $13.00 (decimal)
-$invoice->total = 113.00;     // You set: $113.00 (decimal)
-$invoice->save();             // DB stores: 10000, 1300, 11300 (integers)
-
-// Calculate percentage (works naturally with decimals)
-$taxRate = ($invoice->tax / $invoice->subtotal) * 100;  // 13%
-
-// Display to user (already a decimal!)
-$formatted = '$' . number_format($invoice->total, 2);  // "$113.00"
-```
-
-### Performing Calculations
-
-```php
-$product = Product::find(1);  // price = 19.99 (DB has 1999)
-$quantity = 3;
-
-$lineTotal = $product->price * $quantity;  // 59.97 (19.99 × 3)
-$discount = 5.00;                          // $5.00 discount
-$finalTotal = $lineTotal - $discount;      // 54.97 ✅
-
-// Works naturally with decimal arithmetic!
-```
-
-### Handling Edge Cases
-
-```php
-// Zero values
-$product->price = 0.00;  // Stores 0 in DB
-
-// Negative values (refunds, discounts)
-$refund->amount = -25.00;  // Stores -2500 in DB (negative cents)
-
-// Large numbers
-$property->price = 500000.00;  // Stores 50000000 in DB ($500,000.00)
-```
-
-## Database Schema
-
-Your database columns should be defined as `INTEGER` (to store cents):
-
-```php
-Schema::create('products', function (Blueprint $table) {
-    $table->id();
-    $table->integer('price')->default(0);  // Stores cents: 1999 = $19.99
-    $table->integer('cost')->default(0);   // Stores cents: 1500 = $15.00
-    $table->integer('tax')->default(0);    // Stores cents: 250 = $2.50
-    $table->timestamps();
-});
-```
-
-**Why INTEGER instead of DECIMAL?**
-- ✅ Better performance (integer operations are faster)
-- ✅ Less storage space
-- ✅ No floating-point precision issues at database level
-- ✅ Compatible with all database engines
-
-## Comparison with Alternatives
-
-| Solution | DB Column Type | PHP Value Type | Precision | Package Size |
-|----------|----------------|----------------|-----------|--------------|
-| **Lara100** | `INTEGER` (cents) | `float` (19.99) | ✅ Perfect | Lightweight cast |
-| [moneyphp/money](https://github.com/moneyphp/money) | `INTEGER` (cents) | `Money` object | ✅ Perfect | Full-featured library |
-| [brick/money](https://github.com/brick/money) | `INTEGER` (cents) | `Money` object | ✅ Perfect | Full-featured library |
-| Native DECIMAL | `DECIMAL(10,2)` | `float` (19.99) | ⚠️ Precision issues | No package needed |
-
-**Key Differences:**
-
-- **Lara100**: Lightweight cast that stores integers in DB (efficient), but lets you work with decimals in PHP (natural)
-- **Money libraries**: Full-featured libraries with objects, currency conversion, formatting, etc.
-- **Native DECIMAL**: Traditional approach, works with floats in PHP (precision issues)
-
-**Choose Lara100 when:**
-- ✅ You want a simple, Laravel-native solution
-- ✅ You prefer working with familiar decimal values (19.99)
-- ✅ You want efficient integer storage in the database
-- ✅ You don't need currency conversions or complex money operations
-- ✅ You want to avoid float precision errors without heavy dependencies
-
-**Consider alternatives when:**
-- ❌ You need multi-currency support
-- ❌ You need complex monetary operations (allocation, distribution, rounding strategies)
-- ❌ You prefer working with Money objects instead of scalar decimals
-- ❌ You need advanced formatting and localization features
+The config keys `rounding_mode` and `use_bcmath` (in `config/lara100.php`) are deprecated since 1.3.0 and ignored by `FixedDecimal`. They remain present for `Base100` backward compatibility and will be removed in 2.0.0.
 
 ## Testing
 
-The package includes comprehensive tests for both the cast and trait:
-
 ```bash
 composer test
-```
-
-Run tests with coverage:
-
-```bash
 composer test-coverage
-```
-
-Run tests in parallel:
-
-```bash
 composer test-parallel
 ```
 
 ## Code Quality
 
-Run PHPStan static analysis:
-
 ```bash
 composer phpstan
-```
-
-Run Laravel Pint code formatter:
-
-```bash
-composer format
+composer pint
 ```
 
 ## Changelog
@@ -347,6 +326,4 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## About AichaDigital
 
-AichaDigital is a ITt company focused on IT services.
-
-
+AichaDigital is an IT company focused on IT services.

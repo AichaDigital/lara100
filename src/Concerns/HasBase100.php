@@ -7,6 +7,9 @@ namespace AichaDigital\Lara100\Concerns;
 use AichaDigital\Lara100\Casts\Base100;
 
 /**
+ * @deprecated since 1.3.0. Applies the deprecated float Base100 cast. Cast attributes
+ *             to FixedDecimalCast (with a scale) instead. Removed in 2.0.0.
+ *
  * Trait to simplify applying Base100 cast to multiple attributes.
  *
  * Usage:

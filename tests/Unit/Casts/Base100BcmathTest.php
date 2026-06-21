@@ -9,6 +9,7 @@ describe('Base100 Cast - BCMath', function () {
     beforeEach(function () {
         // Skip if BCMath not available
         if (! extension_loaded('bcmath')) {
+            // @phpstan-ignore method.notFound (Pest beforeEach closure: $this is TestCall, markTestSkipped is Pest-internal)
             $this->markTestSkipped('BCMath extension not available');
         }
     });

@@ -27,10 +27,6 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
     // KILLING Line 67: IfNegated + Line 68: IncrementInteger/RemoveEarlyReturn
     // =============================================================================
     it('MUST use bcmath path when enabled - negating if would break functionality', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
 
         // BCMath enabled - MUST execute bcdiv line
@@ -50,13 +46,9 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
 
         // Verify both use their respective code paths by testing precision-sensitive value
         expect($resultBcmath)->toBe($resultNoBcmath);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     it('MUST use precision 2 in bcdiv - precision 3 would give different float representation', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -71,13 +63,9 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
         // String representation should show 2 decimals
         $formatted = number_format($result, 2, '.', '');
         expect($formatted)->toBe('19.99');
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     it('bcmath early return MUST exist - removing it breaks the conditional logic', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -87,7 +75,7 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
 
         expect($result)->toBe(19.99);
         expect($result)->toBeFloat();
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     // =============================================================================
     // KILLING Line 71: RemoveDoubleCast + IncrementInteger
@@ -152,10 +140,6 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
     // KILLING Line 88: IfNegated + Line 90: Increment/DecrementInteger
     // =============================================================================
     it('MUST use bcmath path in set when enabled - negating breaks it', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
 
         // BCMath enabled - MUST execute bcmul line
@@ -174,13 +158,9 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
 
         // Both must give same result
         expect($resultBcmath)->toBe($resultNoBcmath);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     it('MUST use precision 2 in bcmul - changing to 1 or 3 breaks calculations', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -194,13 +174,9 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
 
         // All results must be exact integers
         expect($cast->set($model, 'price', 0.01, []))->toBeInt();
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     it('bcmath early return in set MUST exist - without it falls to wrong code', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
         $cast = new Base100(null, true);
 
@@ -211,7 +187,7 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
         expect($result)->toBe(1999);
         expect($result)->toBeInt();
         expect($result === 1999)->toBeTrue();
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 
     // =============================================================================
     // KILLING Line 96: RemoveDoubleCast (final line)
@@ -290,10 +266,6 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
     // Additional precision validations
     // =============================================================================
     it('validates every precision parameter individually', function () {
-        if (! extension_loaded('bcmath')) {
-            $this->markTestSkipped('BCMath required for this test');
-        }
-
         $model = new TestModel;
 
         // Test that proves precision=2 is THE correct value
@@ -312,5 +284,5 @@ describe('Base100 Cast - Ultra Mutation Killer', function () {
 
         $stored = $cast->set($model, 'price', 99.99, []);
         expect($stored)->toBe(9999);
-    });
+    })->skip(fn (): bool => ! extension_loaded('bcmath'), 'BCMath required for this test');
 });
