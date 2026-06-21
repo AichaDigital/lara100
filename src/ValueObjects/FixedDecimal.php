@@ -67,7 +67,7 @@ final class FixedDecimal implements JsonSerializable
         // Casting to string produces the shortest round-trip representation,
         // which is the semantic equivalent and the approach recommended by the
         // library (passing raw floats is deprecated since 0.14 and removed in 0.15).
-        return new self(BigDecimal::of((string) $value)->toScale($scale, self::mapRounding($mode)));
+        return new self(BigDecimal::of((string) $value)->toScale($scale, self::mapRounding($mode))); // @pest-mutate-ignore RemoveStringCast - equivalent: brick/math 0.14 of(float) yields same digits but triggers a deprecation warning, not a value difference
     }
 
     public static function zero(int $scale = 0): self
