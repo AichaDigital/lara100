@@ -41,7 +41,7 @@ final class FixedDecimal implements JsonSerializable
             $decimal = BigDecimal::of($value);
 
             if ($scale !== null) {
-                $decimal = $decimal->toScale($scale, EngineRoundingMode::HalfUp);
+                $decimal = $decimal->toScale($scale, self::mapRounding(RoundingMode::HalfUp));
             }
         } catch (MathException $e) {
             throw InvalidFixedDecimal::fromEngine($e);
@@ -124,7 +124,6 @@ final class FixedDecimal implements JsonSerializable
             RoundingMode::HalfUp => EngineRoundingMode::HalfUp,
             RoundingMode::HalfDown => EngineRoundingMode::HalfDown,
             RoundingMode::HalfEven => EngineRoundingMode::HalfEven,
-            RoundingMode::HalfOdd => EngineRoundingMode::HalfOdd,
         };
     }
 }

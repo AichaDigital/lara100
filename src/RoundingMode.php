@@ -19,5 +19,4 @@ enum RoundingMode
     case HalfUp;
     case HalfDown;
     case HalfEven;
-    case HalfOdd;
 }

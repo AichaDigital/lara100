@@ -35,6 +35,12 @@ it('rejects NAN and INF floats', function () {
     FixedDecimal::ofFloat(NAN, 2);
 })->throws(InvalidFixedDecimal::class);
 
+it('builds from floats with every exposed rounding mode', function () {
+    foreach (RoundingMode::cases() as $mode) {
+        expect(FixedDecimal::ofFloat(1.25, 1, $mode))->toBeInstanceOf(FixedDecimal::class);
+    }
+});
+
 it('builds zero at a given scale', function () {
     expect(FixedDecimal::zero(2)->toDecimalString())->toBe('0.00');
 });
