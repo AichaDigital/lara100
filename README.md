@@ -118,7 +118,7 @@ $price = FixedDecimal::ofUnscaled(1999, 2);   // 19.99
 $rate  = FixedDecimal::ofUnscaled(12345, 4);  // 1.2345
 
 // From a decimal string (parse and optionally coerce to a target scale)
-$price = FixedDecimal::ofDecimalString('19.99');       // scale inferred as 2
+$price = FixedDecimal::ofDecimalString('19.99');       // scale inferred from the string's decimals (here, 2)
 $price = FixedDecimal::ofDecimalString('19.9', 2);     // coerced to scale 2 → '19.90'
 
 // Zero at a given scale

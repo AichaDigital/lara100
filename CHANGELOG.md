@@ -2,7 +2,9 @@
 
 All notable changes to `lara100` will be documented in this file.
 
-## [Unreleased] — 1.3.0
+## [Unreleased]
+
+> Targeting **1.3.0** (additive, non-breaking).
 
 ### Added
 
