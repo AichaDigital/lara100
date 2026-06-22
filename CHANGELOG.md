@@ -19,9 +19,7 @@ All notable changes to `lara100` will be documented in this file.
 
 ---
 
-## [Unreleased]
-
-> Targeting **1.3.0** (additive, non-breaking).
+## [1.3.0] - 2026-06-21
 
 ### Added
 
