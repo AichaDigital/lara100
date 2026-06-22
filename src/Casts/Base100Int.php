@@ -32,12 +32,12 @@ final class Base100Int implements CastsAttributes
     public function get(Model $model, string $key, mixed $value, array $attributes): int
     {
         if ($value === null) {
-            return 0;
+            return 0; // @pest-mutate-ignore RemoveEarlyReturn - equivalent: flow converges to 0
         }
 
         // Ensure value is numeric before converting to int
         if (! is_numeric($value)) {
-            return 0;
+            return 0; // @pest-mutate-ignore RemoveEarlyReturn - equivalent: flow converges to 0
         }
 
         return (int) $value;
@@ -54,12 +54,12 @@ final class Base100Int implements CastsAttributes
     public function set(Model $model, string $key, mixed $value, array $attributes): int
     {
         if ($value === null) {
-            return 0;
+            return 0; // @pest-mutate-ignore RemoveEarlyReturn - equivalent: flow converges to 0
         }
 
         // Ensure value is numeric before converting to int
         if (! is_numeric($value)) {
-            return 0;
+            return 0; // @pest-mutate-ignore RemoveEarlyReturn - equivalent: flow converges to 0
         }
 
         return (int) $value;

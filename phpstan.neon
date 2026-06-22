@@ -4,7 +4,6 @@ includes:
 parameters:
     paths:
         - src
-        - config
         - tests
 
     level: max
@@ -18,32 +17,3 @@ parameters:
     ignoreErrors:
         # Pest internal methods - these are intentional design decisions by Pest
         - '#Call to method .+ of internal class Pest\\.*#'
-
-        # Allow env() in package config files (this is correct for Laravel packages)
-        - '#Called .env. outside of the config directory#'
-
-        # Intentional use of deprecated Base100/HasBase100 API: legacy test suite
-        # and contrast tests must keep working until v2.0.0. Do NOT expand to the
-        # whole project — scope is limited to paths that legitimately use the
-        # deprecated API.
-        #
-        # Base100*.php test files: instantiate and call methods on the deprecated class
-        -
-            identifier: new.deprecatedClass
-            paths:
-                - tests/Unit/Casts/Base100*.php
-        -
-            identifier: method.deprecatedClass
-            paths:
-                - tests/Unit/Casts/Base100*.php
-        # TestModel.php references Base100::class as a string constant
-        -
-            identifier: classConstant.deprecatedClass
-            paths:
-                - tests/Models/TestModel.php
-        # TestModelWithTrait.php uses the deprecated HasBase100 trait
-        -
-            identifier: traitUse.deprecatedTrait
-            paths:
-                - tests/Models/TestModelWithTrait.php
-

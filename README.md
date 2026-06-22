@@ -41,7 +41,7 @@ Arithmetic is exact at every step. The result serialises as a decimal string (`'
 composer require aichadigital/lara100
 ```
 
-No configuration file is required for the `FixedDecimal` path. The legacy `config/lara100.php` (deprecated since 1.3.0) is still publishable for projects that still use the `Base100` cast.
+No configuration file is required — lara100 ships with no publishable config.
 
 ## Usage
 
@@ -200,8 +200,6 @@ lara100 ships its own `RoundingMode` enum — fully encapsulated from the underl
 
 `HalfUp` is the European/Spanish fiscal standard and the default wherever lara100 accepts a rounding mode. `HalfEven` (banker's rounding) is the right choice for general accounting aggregations.
 
-Note: the legacy `Base100` cast exposed `PHP_ROUND_HALF_ODD` (mode 4). That mode has **no equivalent** in `FixedDecimal`. It is absent from the industry standards (java.math, IEEE 754, most fiscal specs) and from brick/math. `HalfUp` or `HalfEven` cover all fiscal cases.
-
 ## Positioning
 
 lara100 is a **Laravel-native, scale-aware exact decimal** built on top of `brick/math`. It occupies a specific niche — here is when to reach for each option:
@@ -228,65 +226,18 @@ lara100 is a **Laravel-native, scale-aware exact decimal** built on top of `bric
 
 - You need currency codes, currency conversion, or monetary allocation (splitting a total into N parts that sum exactly)
 
-lara100 encapsulates `brick/math ^0.14.2` internally. The dependency is lightweight; `brick` types are not exposed except via the explicit `toBigDecimal()` escape hatch. Starting with 1.3.0 the "zero external dependencies" claim no longer applies — lara100 is still lightweight but it does pull in `brick/math`.
+lara100 encapsulates `brick/math ^0.14.2` internally. The dependency is lightweight; `brick` types are not exposed except via the explicit `toBigDecimal()` escape hatch.
 
 ## Comparison with Alternatives
 
 | Solution | DB column | PHP value | Precision | Laravel cast | Multi-currency |
 |----------|-----------|-----------|-----------|:------------:|:--------------:|
 | **lara100 `FixedDecimal`** | `INTEGER` (unscaled) | `FixedDecimal` (exact) | Exact | Yes | No |
-| **lara100 `Base100`** (deprecated) | `INTEGER` (cents) | `float` | Float — imprecise | Yes | No |
+| **lara100 `Base100Int`** | `INTEGER` (cents) | `int` | Exact | Yes | No |
 | `brick/math` (`BigDecimal`) | — | `BigDecimal` (exact) | Exact | No | No |
 | `brick/money` | `INTEGER` | `Money` (exact + currency) | Exact | No | Yes |
 | `moneyphp/money` | `INTEGER` | `Money` (exact + currency) | Exact | No | Yes |
 | Native `DECIMAL` column | `DECIMAL(10,2)` | `float` | Float — imprecise | No | No |
-
-## Legacy / Deprecated
-
-### `Base100` cast and `HasBase100` trait (deprecated since 1.3.0, removed in 2.0.0)
-
-The original `Base100` cast converts stored integers to PHP `float` on read. While the integer storage is correct, the float representation reintroduces IEEE-754 imprecision in the application layer — precisely the problem lara100 was designed to solve.
-
-**Migration path:**
-
-Replace `Base100` with `FixedDecimalCast` at the scale your column uses (almost always 2 for cent-based money):
-
-```php
-// Before (deprecated)
-use AichaDigital\Lara100\Casts\Base100;
-use AichaDigital\Lara100\Concerns\HasBase100;
-
-class Invoice extends Model
-{
-    use HasBase100;
-
-    protected function base100Attributes(): array
-    {
-        return ['subtotal', 'tax_amount', 'total'];
-    }
-}
-
-// After (1.3.0+)
-use AichaDigital\Lara100\Casts\FixedDecimalCast;
-
-class Invoice extends Model
-{
-    protected function casts(): array
-    {
-        return [
-            'subtotal'   => FixedDecimalCast::class.':2',
-            'tax_amount' => FixedDecimalCast::class.':2',
-            'total'      => FixedDecimalCast::class.':2',
-        ];
-    }
-}
-```
-
-After the migration, attributes return `FixedDecimal` objects instead of floats. Update any code that assigned a raw float to these attributes — use `FixedDecimal::ofDecimalString()` or `FixedDecimal::ofUnscaled()` instead.
-
-`Base100Int` (introduced in 1.1.0) is **not deprecated** — it remains valid for columns where you genuinely need the raw unscaled integer in the application layer.
-
-The config keys `rounding_mode` and `use_bcmath` (in `config/lara100.php`) are deprecated since 1.3.0 and ignored by `FixedDecimal`. They remain present for `Base100` backward compatibility and will be removed in 2.0.0.
 
 ## Testing
 

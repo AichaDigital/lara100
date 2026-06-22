@@ -12,7 +12,6 @@ final class Lara100ServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('lara100')
-            ->hasConfigFile();
+            ->name('lara100');
     }
 }
