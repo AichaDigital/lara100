@@ -6,5 +6,12 @@
     ":timezone(Europe/Madrid)",
     ":semanticCommits"
   ],
-  "schedule": ["before 10am on monday"]
+  "schedule": ["before 10am on monday"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["brick/math"],
+      "allowedVersions": "<0.15",
+      "description": "Laravel 12 caps brick/math at ^0.14, Laravel 13 at ^0.17; the intersection while both are supported is ^0.14.2. Bumps to 0.15+ are not installable and must stay blocked until L12 is dropped (and the ecosystem reaches the target version)."
+    }
+  ]
 }
