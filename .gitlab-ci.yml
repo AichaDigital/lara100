@@ -1,0 +1,146 @@
+# CI de aichadigital/lara100 en GitLab self-hosted (ADE-295 — Fase 3).
+# Traducción de .github/workflows/{tests,pint,phpstan,quality-gates}.yml.
+# Runner: aichadigital-runner01 (VM 891 en prohe03), tags [aichadigital, docker].
+# El runner es opt-in (run_untagged=false): sin estos tags no se ejecuta nada.
+#
+# Este paquete es el de gates más duros de la umbrela, y se conservan TODOS:
+# PHPStan `level: max`, cobertura `--min=100` y mutación `--min=100`. Ojo al leer
+# el original: el workflow se titulaba «Mutation Testing (70%+)» pero el comando
+# real es `--min=100`; manda el comando, no el rótulo.
+#
+# Pint y PHPStan están DUPLICADOS a propósito, no por descuido: sus workflows
+# propios corrían en 8.3 y el de gates en 8.4. No son la misma comprobación —
+# el análisis estático depende de la versión de PHP— así que se conservan las dos.
+
+stages:
+  - quality
+  - test
+  - gates
+
+default:
+  tags:
+    - aichadigital
+    - docker
+  interruptible: true
+
+variables:
+  COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.composer-cache"
+  COMPOSER_ALLOW_SUPERUSER: "1"
+  # La matriz resuelve cuatro árboles y la mutación recorre todo el código: el
+  # límite de 300 s que Composer impone a sus procesos hijo está latente aquí.
+  COMPOSER_PROCESS_TIMEOUT: "0"
+  GIT_DEPTH: "20"
+
+# Equivalente a: on.push[main] + on.pull_request[main]
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Paquete: no hay composer.lock versionado → `composer update`, como en GitHub.
+.php:
+  before_script:
+    - php -v | head -1
+    - composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+  cache:
+    key: "composer-php${PHP_VERSION}-l${LARAVEL}"
+    paths:
+      - .composer-cache/
+
+# --- Stage: quality -----------------------------------------------------------
+
+manifest:
+  stage: quality
+  image: aichadigital/laravel-ci:8.3
+  script:
+    - composer validate --strict --no-interaction
+
+pint:
+  stage: quality
+  image: aichadigital/laravel-ci:8.3
+  variables:
+    PHP_VERSION: "8.3"
+  extends: .php
+  script:
+    # `composer format-check`, no `composer format`: el segundo REESCRIBE los
+    # ficheros. En CI eso no falla — deja el árbol sucio y reporta éxito.
+    - composer format-check
+
+phpstan:
+  stage: quality
+  image: aichadigital/laravel-ci:8.3
+  variables:
+    PHP_VERSION: "8.3"
+  extends: .php
+  script:
+    - composer phpstan
+
+# --- Stage: test --------------------------------------------------------------
+# Matriz PHP × Laravel. GitHub emparejaba cada Laravel con su testbench vía
+# `include:`; aquí van dos entradas con el par fijo y el array de PHP → 4 jobs.
+# Sin cobertura, igual que el original (`coverage: none` + `--no-coverage`): la
+# cobertura se mide una sola vez, en el gate.
+
+pest:
+  stage: test
+  image: aichadigital/laravel-ci:$PHP_VERSION
+  parallel:
+    matrix:
+      - PHP_VERSION: ["8.3", "8.4"]
+        LARAVEL: "12.*"
+        TESTBENCH: "^10.6"
+      - PHP_VERSION: ["8.3", "8.4"]
+        LARAVEL: "13.*"
+        TESTBENCH: "^11.0"
+  cache:
+    key: "composer-php${PHP_VERSION}-l${LARAVEL}"
+    paths:
+      - .composer-cache/
+  before_script:
+    - php -v | head -1
+    - composer require "laravel/framework:${LARAVEL}" "orchestra/testbench:${TESTBENCH}" --no-interaction --no-update
+    - composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+    - composer show -D
+  script:
+    - composer test -- --compact --no-coverage
+
+# --- Stage: gates -------------------------------------------------------------
+# El job que decide si esto puede mergearse. Corre en 8.4, como en GitHub.
+#
+# Diferencias respecto al original, ambas deliberadas:
+#
+#   - Codecov retirado en favor de la cobertura NATIVA de GitLab (una dependencia
+#     externa menos, que es el motivo de ADE-291). El GATE real nunca fue Codecov
+#     —subía con `fail_ci_if_error: false`— sino `--min=100`, que se conserva.
+#   - No se repite `composer test` a secas antes de `test-coverage`: el segundo
+#     ejecuta la misma suite midiendo. En GitHub eran dos pasadas; aquí una.
+#
+# El driver: la imagen compartida trae PCOV (deshabilitado), no Xdebug, que es lo
+# que usaba el workflow original. La aserción del driver NO es opcional — un gate
+# de cobertura sin driver no falla: mide cero y reporta éxito.
+quality-gates:
+  stage: gates
+  image: aichadigital/laravel-ci:8.4
+  variables:
+    PHP_VERSION: "8.4"
+  extends: .php
+  script:
+    - echo 'pcov.enabled=1' > /usr/local/etc/php/conf.d/zz-pcov-on.ini
+    - |
+      if ! php -r 'exit(ini_get("pcov.enabled") ? 0 : 1);'; then
+        echo "PCOV no se activó — cobertura y mutación medirían cero y reportarían éxito"
+        exit 1
+      fi
+    - composer format-check
+    - composer phpstan
+    - composer test-coverage
+    - composer test-mutate
+  # Sin ancla `^`: Pest invocado directamente emite "<ESC>[1mTotal: 100.0 %<ESC>[22m",
+  # y un `^\s*Total:` no casa más allá del escape — GitLab registraría cobertura
+  # vacía con el job en verde (lección de lara-content, 2026-07-22).
+  coverage: '/Total:\s*(\d+\.\d+)\s*%/'
+  artifacts:
+    when: always
+    paths:
+      - build/logs/clover.xml
+    expire_in: 1 week
