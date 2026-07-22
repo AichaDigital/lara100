@@ -3,14 +3,18 @@
 <!-- AI-BADGES:START profile=essential -->
 [![Latest Version](https://img.shields.io/packagist/v/aichadigital/lara100.svg?style=flat-square)](https://packagist.org/packages/aichadigital/lara100)
 [![Total Downloads](https://img.shields.io/packagist/dt/aichadigital/lara100.svg?style=flat-square)](https://packagist.org/packages/aichadigital/lara100)
-[![Tests](https://img.shields.io/github/actions/workflow/status/AichaDigital/lara100/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/AichaDigital/lara100/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Code Style](https://img.shields.io/github/actions/workflow/status/AichaDigital/lara100/pint.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/AichaDigital/lara100/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
-[![Code Coverage](https://img.shields.io/codecov/c/github/AichaDigital/lara100?style=flat-square&logo=codecov)](https://codecov.io/gh/AichaDigital/lara100)
+[![Pipeline](https://gitlab.castris.com/aichadigital/lara100/badges/main/pipeline.svg?style=flat-square)](https://gitlab.castris.com/aichadigital/lara100/-/pipelines)
+[![Coverage](https://gitlab.castris.com/aichadigital/lara100/badges/main/coverage.svg?style=flat-square)](https://gitlab.castris.com/aichadigital/lara100/-/pipelines)
 [![PHPStan level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg?style=flat-square&logo=php)](https://phpstan.org/)
 [![PHP Version](https://img.shields.io/packagist/php-v/aichadigital/lara100.svg?style=flat-square&logo=php)](https://packagist.org/packages/aichadigital/lara100)
 [![Laravel Version](https://img.shields.io/badge/Laravel-12.x%20%7C%2013.x-red.svg?style=flat-square&logo=laravel)](https://laravel.com)
 [![License](https://img.shields.io/packagist/l/aichadigital/lara100.svg?style=flat-square)](https://packagist.org/packages/aichadigital/lara100)
 <!-- AI-BADGES:END -->
+
+> Development happens on
+> [gitlab.castris.com](https://gitlab.castris.com/aichadigital/lara100).
+> The GitHub repository is a read-only distribution mirror: issues and pull
+> requests opened there are not seen.
 
 A Laravel package providing an **immutable, scale-configurable exact decimal value object** (`FixedDecimal`) and a matching Eloquent cast (`FixedDecimalCast`). Values are stored as plain integers (unscaled) in the database; the cast and value object handle all precision arithmetic using `brick/math` under the hood.
 
